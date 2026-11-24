@@ -1,1171 +1,1053 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MedHub Clínico Total</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Telegram Web App API -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
-</head>
-<body class="bg-gray-100 text-gray-900 min-h-screen flex flex-col pb-12">
-
-    <!-- CABEÇALHO MASTER: ALTERNADOR DE GUIAS -->
-    <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
-        <div class="max-w-md mx-auto p-2.5 flex items-center justify-between border-b border-slate-800">
-            <h1 class="text-xs font-black flex items-center gap-1.5">
-                <span>🏥</span> MedHub Clínico
-            </h1>
-            <span class="text-[9px] bg-teal-500/20 text-teal-300 border border-teal-500/30 px-2 py-0.5 rounded-full font-bold">Base Completa</span>
-        </div>
-        
-        <!-- SELETOR DAS 2 GUIAS PRINCIPAIS -->
-        <div class="max-w-md mx-auto grid grid-cols-2 p-1.5 gap-1.5 bg-slate-950">
-            <button type="button" onclick="alternarApp('app-calc')" id="btn-master-calc" class="py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1 bg-teal-600 text-white shadow">
-                🧮 Calculadoras (9)
-            </button>
-            <button type="button" onclick="alternarApp('app-guia')" id="btn-master-guia" class="py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1 text-gray-400 hover:text-white">
-                📖 Guia & Condutas
-            </button>
-        </div>
-    </header>
-
-    <!-- ========================================================================= -->
-    <!-- GUIA 1: CALCULADORAS MÉDICAS                                             -->
-    <!-- ========================================================================= -->
-    <div id="app-calc" class="w-full flex-grow flex flex-col">
-        <nav class="bg-white border-b border-gray-200 sticky top-[80px] z-40 shadow-sm">
-            <div class="max-w-md mx-auto overflow-x-auto no-scrollbar flex gap-1.5 p-2">
-                <button onclick="mudarTabCalc('tab-ob')" id="btn-sub-ob" class="btn-calc shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-teal-50 text-teal-800 border-2 border-teal-500/20">🤰 Obstetrícia</button>
-                <button onclick="mudarTabCalc('tab-dieta')" id="btn-sub-dieta" class="btn-calc shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-500 border border-transparent">🥗 Dieta/Macros</button>
-                <button onclick="mudarTabCalc('tab-escalas')" id="btn-sub-escalas" class="btn-calc shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-500 border border-transparent">🧠 Glasgow/Apgar</button>
-                <button onclick="mudarTabCalc('tab-lipidio')" id="btn-sub-lipidio" class="btn-calc shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-500 border border-transparent">🧪 Perfil Lipídico</button>
-                <button onclick="mudarTabCalc('tab-ped')" id="btn-sub-ped" class="btn-calc shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-500 border border-transparent">👶 Pediátrica/Neo</button>
-                <button onclick="mudarTabCalc('tab-ins')" id="btn-sub-ins" class="btn-calc shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-500 border border-transparent">🩸 Insulina (PSZO)</button>
-                <button onclick="mudarTabCalc('tab-alcool')" id="btn-sub-alcool" class="btn-calc shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-500 border border-transparent">🍺 Alcoolemia</button>
-                <button onclick="mudarTabCalc('tab-labs')" id="btn-sub-labs" class="btn-calc shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-500 border border-transparent">📊 Laboratório</button>
-                <button onclick="mudarTabCalc('tab-tumor')" id="btn-sub-tumor" class="btn-calc shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-500 border border-transparent">🎗️ Tumorais</button>
-            </div>
-        </nav>
-
-        <main class="max-w-md mx-auto w-full p-4 space-y-4 flex-grow">
-            <!-- 1. OBSTETRÍCIA -->
-            <section id="tab-ob" class="sec-calc space-y-4">
-                <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-4">
-                    <h2 class="text-base font-extrabold text-teal-800">🤰 Calculadora Obstétrica Profissional</h2>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">🗓️ Data da Última Menstruação (DUM)</label>
-                        <input type="date" id="dum" onchange="calcOb()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-2xl font-bold">
-                    </div>
-                    <div class="p-3.5 bg-teal-50/50 rounded-2xl border border-teal-100 space-y-3">
-                        <span class="text-xs font-bold text-teal-800 uppercase block">Conciliar com Ultrassom (USG)</span>
-                        <input type="date" id="data_usg" onchange="calcOb()" class="w-full p-2 bg-white border rounded-xl font-bold">
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="number" id="sem_usg" placeholder="Semanas no laudo" oninput="calcOb()" class="w-full p-2 bg-white border rounded-xl text-center font-bold">
-                            <input type="number" id="dias_usg" min="0" max="6" placeholder="Dias (0 a 6)" oninput="calcOb()" class="w-full p-2 bg-white border rounded-xl text-center font-bold">
-                        </div>
-                    </div>
-                    <div id="res-ob" class="space-y-3 pt-2">
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="bg-teal-50 p-3 rounded-2xl border border-teal-100">
-                                <span class="block text-[9px] text-teal-700 font-bold uppercase">IG por DUM (Hoje)</span>
-                                <span id="ig-dum-txt" class="text-base font-black text-teal-900">--</span>
-                            </div>
-                            <div class="bg-cyan-50 p-3 rounded-2xl border border-cyan-100">
-                                <span class="block text-[9px] text-cyan-700 font-bold uppercase">IG por USG (Hoje)</span>
-                                <span id="ig-usg-txt" class="text-base font-black text-cyan-900">--</span>
-                            </div>
-                        </div>
-                        <div class="bg-gray-900 p-4 rounded-2xl text-white">
-                            <span class="block text-[9px] font-bold uppercase tracking-widest text-teal-400">Data Provável do Parto (DPP - 40 Semanas)</span>
-                            <span id="dpp-txt" class="text-2xl font-black">--/--/----</span>
-                            <span id="info-dpp" class="block text-[10px] text-gray-400 italic mt-0.5">Informe DUM ou USG</span>
-                        </div>
-                        <div id="alerta-div" class="p-2.5 rounded-xl text-xs font-bold text-center hidden"></div>
-                    </div>
-                    <button onclick="compartilharCalc('Obstetrícia')" class="w-full py-2.5 bg-teal-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
-                        <span>📤</span> Enviar Laudo Obstétrico ao Telegram
-                    </button>
-                </div>
-            </section>
-
-            <!-- 2. DIETA COM EXPLICAÇÕES DE MACROS E PERDA DE PESO -->
-            <section id="tab-dieta" class="sec-calc hidden space-y-4">
-                <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-4">
-                    <h2 class="text-base font-extrabold text-teal-800">🥗 Planejador de Dieta, TMB & Macros</h2>
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase">Peso Atual (kg)</label>
-                            <input type="number" id="peso-dieta" step="0.1" value="85" oninput="calcDieta()" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-center">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase">Altura (cm)</label>
-                            <input type="number" id="altura-dieta" step="1" value="175" oninput="calcDieta()" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-center">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase">Idade (anos)</label>
-                            <input type="number" id="idade-dieta" value="40" oninput="calcDieta()" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-center">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase">Sexo Biológico</label>
-                            <select id="sexo-dieta" onchange="calcDieta()" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold">
-                                <option value="M">Masculino</option>
-                                <option value="F">Feminino</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase">Fator de Atividade Física</label>
-                        <select id="atividade-dieta" onchange="calcDieta()" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-xs">
-                            <option value="1.2">Sedentário (Pouco ou nenhum exercício)</option>
-                            <option value="1.375">Leve (Exercício leve 1-3 dias/semana)</option>
-                            <option value="1.55">Moderado (Exercício moderado 3-5 dias/semana)</option>
-                            <option value="1.725">Intenso (Exercício pesado 6-7 dias/semana)</option>
-                        </select>
-                    </div>
-
-                    <div class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200 space-y-3">
-                        <div class="grid grid-cols-2 gap-2 pb-2 border-b border-emerald-200">
-                            <div>
-                                <span class="block text-[10px] text-emerald-800 font-bold uppercase">IMC Atual</span>
-                                <span id="imc-val" class="text-lg font-black text-emerald-950">--</span>
-                                <span id="imc-class" class="block text-[10px] text-emerald-700 font-extrabold">--</span>
-                            </div>
-                            <div>
-                                <span class="block text-[10px] text-emerald-800 font-bold uppercase">Faixa de Peso Normal</span>
-                                <span id="peso-ideal-range" class="text-xs font-bold text-emerald-950 block">--</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="font-bold text-gray-700">Taxa Metabólica Basal Total (TMB):</span>
-                            <span id="tmb-kcal" class="font-black text-teal-900 text-sm">0 kcal/dia</span>
-                        </div>
-                        <div class="flex justify-between items-center bg-white p-2.5 rounded-xl border border-emerald-200 shadow-sm">
-                            <span class="text-xs font-extrabold text-rose-700">Meta p/ Emagrecer (Déficit -500 kcal):</span>
-                            <span id="emagrecer-kcal" class="text-base font-black text-rose-700">0 kcal/dia</span>
-                        </div>
-                        <div class="pt-1">
-                            <span class="block text-[10px] font-black uppercase text-emerald-900 mb-1">Distribuição de Macronutrientes (30% P / 40% C / 30% G)</span>
-                            <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-extrabold text-white">
-                                <div class="bg-amber-700 p-2 rounded-xl"><span class="block text-amber-100 font-normal">🍗 Prot</span><span id="macro-prot" class="text-xs">--g</span></div>
-                                <div class="bg-sky-700 p-2 rounded-xl"><span class="block text-sky-100 font-normal">🍞 Carb</span><span id="macro-carb" class="text-xs">--g</span></div>
-                                <div class="bg-emerald-700 p-2 rounded-xl"><span class="block text-emerald-100 font-normal">🥑 Gord</span><span id="macro-gord" class="text-xs">--g</span></div>
-                            </div>
-                        </div>
-
-                        <!-- PAINEL EXPLICATIVO DE PERDA DE PESO E MACROS -->
-                        <div class="bg-white/80 p-3 rounded-xl border border-emerald-300 text-[11px] text-gray-700 space-y-1.5 mt-2">
-                            <strong class="text-emerald-900 block font-bold">💡 Entenda o Cálculo Metabólico & Perda de Peso:</strong>
-                            <p>• <b>Déficit de -500 kcal/dia:</b> Reduz 3.500 kcal na semana, gerando perda aproximada de <b>0,5 kg de gordura pura por semana</b> (~2 kg/mês) sem perda excessiva de massa muscular.</p>
-                            <p>• <b>Proteínas (30% / 4 kcal/g):</b> Preserva massa muscular magra e aumenta a saciedade pós-prandial.</p>
-                            <p>• <b>Carboidratos (40% / 4 kcal/g):</b> Fornece energia para as funções biológicas vitais e treinos diários.</p>
-                            <p>• <b>Gorduras Boas (30% / 9 kcal/g):</b> Essencial para síntese hormonal e absorção de vitaminas lipossolúveis (A, D, E, K).</p>
-                        </div>
-                    </div>
-                    <button onclick="compartilharCalc('Dieta')" class="w-full py-2.5 bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
-                        <span>📤</span> Enviar Metas ao Telegram
-                    </button>
-                </div>
-            </section>
-
-            <!-- 3. GLASGOW & APGAR -->
-            <section id="tab-escalas" class="sec-calc hidden space-y-4">
-                <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-3">
-                    <h2 class="text-base font-extrabold text-teal-800">🧠 Escala de Coma de Glasgow</h2>
-                    <select id="glasgow-ocular" onchange="calcEscalas()" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
-                        <option value="4">Ocular: 4 - Espontânea</option>
-                        <option value="3">Ocular: 3 - À voz</option>
-                        <option value="2">Ocular: 2 - À dor</option>
-                        <option value="1">Ocular: 1 - Nenhuma</option>
-                    </select>
-                    <select id="glasgow-verbal" onchange="calcEscalas()" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
-                        <option value="5">Verbal: 5 - Orientado</option>
-                        <option value="4">Verbal: 4 - Confuso</option>
-                        <option value="3">Verbal: 3 - Inapropriado</option>
-                        <option value="2">Verbal: 2 - Incompreensível</option>
-                        <option value="1">Verbal: 1 - Nenhuma</option>
-                    </select>
-                    <select id="glasgow-motor" onchange="calcEscalas()" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
-                        <option value="6">Motor: 6 - Obedece</option>
-                        <option value="5">Motor: 5 - Localiza dor</option>
-                        <option value="4">Motor: 4 - Flexão normal</option>
-                        <option value="3">Motor: 3 - Decorticação</option>
-                        <option value="2">Motor: 2 - Descerebração</option>
-                        <option value="1">Motor: 1 - Nenhuma</option>
-                    </select>
-                    <div class="bg-teal-50 p-3 rounded-2xl border border-teal-100 text-center">
-                        <span class="block text-2xl font-black text-teal-900" id="total-glasgow">15</span>
-                        <span class="text-xs font-bold text-teal-700" id="desc-glasgow">Normal / Leve</span>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-3">
-                    <h2 class="text-base font-extrabold text-indigo-900">👶 Escala de Apgar Neonatal</h2>
-                    <select id="apgar-fc" onchange="calcEscalas()" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
-                        <option value="2">FC: 2 - &gt; 100 bpm</option>
-                        <option value="1">FC: 1 - &lt; 100 bpm</option>
-                        <option value="0">FC: 0 - Ausente</option>
-                    </select>
-                    <select id="apgar-resp" onchange="calcEscalas()" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
-                        <option value="2">Respiração: 2 - Choro forte / Regular</option>
-                        <option value="1">Respiração: 1 - Fraco / Irregular</option>
-                        <option value="0">Respiração: 0 - Ausente</option>
-                    </select>
-                    <select id="apgar-tonus" onchange="calcEscalas()" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
-                        <option value="2">Tônus: 2 - Movimento ativo</option>
-                        <option value="1">Tônus: 1 - Alguma flexão</option>
-                        <option value="0">Tônus: 0 - Flácido</option>
-                    </select>
-                    <select id="apgar-ref" onchange="calcEscalas()" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
-                        <option value="2">Reflexo: 2 - Espirros / Choro</option>
-                        <option value="1">Reflexo: 1 - Careta / Movimento</option>
-                        <option value="0">Reflexo: 0 - Sem resposta</option>
-                    </select>
-                    <select id="apgar-cor" onchange="calcEscalas()" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
-                        <option value="2">Cor: 2 - Rosado</option>
-                        <option value="1">Cor: 1 - Extremidades cianóticas</option>
-                        <option value="0">Cor: 0 - Cianótico / Pálido</option>
-                    </select>
-                    <div class="bg-indigo-50 p-3 rounded-2xl border border-indigo-100 text-center">
-                        <span class="block text-2xl font-black text-indigo-900" id="total-apgar">10</span>
-                        <span class="text-xs font-bold text-indigo-700" id="desc-apgar">Adaptação excelente</span>
-                    </div>
-                    <button onclick="compartilharCalc('Escalas')" class="w-full py-2.5 bg-indigo-900 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
-                        <span>📤</span> Enviar Escalas ao Telegram
-                    </button>
-                </div>
-            </section>
-
-            <!-- 4. PERFIL LIPÍDICO COM EXPLICAÇÃO DETALHADA DE CASTELLI -->
-            <section id="tab-lipidio" class="sec-calc hidden space-y-4">
-                <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-3">
-                    <h2 class="text-base font-extrabold text-purple-900">🧪 Perfil Lipídico & Índices de Castelli</h2>
-                    <input type="number" id="lip-ct" placeholder="Colesterol Total (mg/dL)" oninput="calcLip()" class="w-full p-2 bg-gray-50 border rounded-xl text-center font-bold">
-                    <input type="number" id="lip-hdl" placeholder="Colesterol HDL (mg/dL)" oninput="calcLip()" class="w-full p-2 bg-gray-50 border rounded-xl text-center font-bold">
-                    <input type="number" id="lip-tg" placeholder="Triglicerídeos (mg/dL)" oninput="calcLip()" class="w-full p-2 bg-gray-50 border rounded-xl text-center font-bold">
-                    
-                    <div class="bg-purple-50/70 p-4 rounded-2xl border border-purple-200 space-y-2 text-xs">
-                        <div class="flex justify-between font-bold border-b border-purple-200 pb-1">
-                            <span>LDL (Friedewald):</span><span id="lip-ldl" class="font-black text-purple-950">-- mg/dL</span>
-                        </div>
-                        <div class="flex justify-between"><span>Não-HDL:</span><span id="lip-naohdl" class="font-bold">-- mg/dL</span></div>
-                        <div class="flex justify-between"><span>VLDL:</span><span id="lip-vldl" class="font-bold">-- mg/dL</span></div>
-                        <div class="flex justify-between border-t border-purple-200 pt-1">
-                            <span>Índice Castelli I (CT / HDL):</span><span id="lip-c1" class="font-black text-purple-950">--</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Índice Castelli II (LDL / HDL):</span><span id="lip-c2" class="font-black text-purple-950">--</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Relação TG / HDL:</span><span id="lip-tghdl" class="font-black text-purple-950">--</span>
-                        </div>
-
-                        <!-- EXPLICAÇÃO CLÍNICA DE CASTELLI -->
-                        <div class="bg-white/90 p-3 rounded-xl border border-purple-300 text-[11px] text-gray-700 space-y-1.5 mt-2">
-                            <strong class="text-purple-900 block font-bold">📊 Interpretação dos Índices de Castelli & Risco Cardiovascular:</strong>
-                            <p>• <b>Castelli I (CT / HDL):</b> Avalia o risco aterogênico global. <b>Meta ideal:</b> &lt; 4,5 (Homens) e &lt; 4,0 (Mulheres). Valores &gt; 5,0 sinalizam alto risco coronariano.</p>
-                            <p>• <b>Castelli II (LDL / HDL):</b> Proporção direta de colesterol aterogênico sobre o protetor. <b>Meta ideal:</b> &lt; 3,0. Valores &gt; 3,5 indicam alto potencial trombogênico.</p>
-                            <p>• <b>Relação TG / HDL:</b> Preditor clássico de partículas de LDL pequenas e densas (fenótipo B) e resistência à insulina. <b>Meta ideal:</b> &lt; 2,0. Acima de 3,0 reflete dislipidemia aterogênica severa.</p>
-                        </div>
-                    </div>
-                    <button onclick="compartilharCalc('Lipidico')" class="w-full py-2.5 bg-purple-900 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
-                        <span>📤</span> Enviar Lipídico ao Telegram
-                    </button>
-                </div>
-            </section>
-
-            <!-- 5. PEDIÁTRICA COM ELETRÓLITOS COMPLETOS NO HOLLIDAY -->
-            <section id="tab-ped" class="sec-calc hidden space-y-4">
-                <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-4">
-                    <h2 class="text-base font-extrabold text-teal-800">👶 Hidratação Pediátrica & Neonatal</h2>
-                    <input type="number" id="peso-ped" step="0.1" placeholder="PESO DO PACIENTE (Kg)" oninput="calcPed()" class="w-full p-3 bg-gray-50 border-2 border-teal-500/30 text-teal-900 text-2xl font-black rounded-2xl text-center">
-                    <div id="res-ped" class="hidden space-y-3">
-                        <!-- Prematuros -->
-                        <div class="border-t-4 border-indigo-600 bg-indigo-50/30 p-3 rounded-2xl border border-indigo-100 text-xs space-y-1">
-                            <span class="font-bold text-indigo-900 block">1. Hidratação Prematuros</span>
-                            <div class="flex justify-between"><span>SG 15% (P*60):</span><span class="font-bold" id="pre-sg15">0 ml</span></div>
-                            <div class="flex justify-between"><span>Glicose 50% (P*6):</span><span class="font-bold" id="pre-gli50">0 ml</span></div>
-                            <div class="flex justify-between"><span>NaCl 20% (P*0.6):</span><span class="font-bold" id="pre-nacl">0 ml</span></div>
-                            <div class="flex justify-between"><span>KCl 19,1% (P*0.6):</span><span class="font-bold" id="pre-kcl">0 ml</span></div>
-                            <div class="flex justify-between border-t border-indigo-100 pt-1 font-bold text-indigo-900">
-                                <span>Gotejamento (SG15/75):</span><span id="pre-gts" class="text-orange-600 font-bold">0 gts/min</span>
-                            </div>
-                        </div>
-
-                        <!-- Hipoglicemia Neonatal -->
-                        <div class="border-t-4 border-rose-600 bg-rose-50/30 p-3 rounded-2xl border border-rose-100 text-xs space-y-1">
-                            <span class="font-bold text-rose-900 block">2. Hipoglicemia Neonatal</span>
-                            <div class="flex justify-between"><span>Ataque (2ml Gli 50% + 8ml ABD - P*2):</span><span class="font-bold text-rose-700" id="hipo-ataque">0 ml</span></div>
-                            <div class="flex justify-between"><span>Manutenção SG 5% (12 horas):</span><span class="font-bold" id="hipo-man">0 ml</span></div>
-                            <div class="flex justify-between font-black text-rose-900"><span>Vazão da Bomba:</span><span class="text-rose-700" id="hipo-vazao">0 ml/h</span></div>
-                        </div>
-
-                        <!-- Holliday-Segar Completo com Eletrólitos -->
-                        <div class="border-t-4 border-emerald-600 bg-emerald-50/30 p-3.5 rounded-2xl border border-emerald-100 text-xs space-y-1.5">
-                            <span class="font-bold text-emerald-900 block">3. Holliday-Segar Completo (Etapa de 6h)</span>
-                            <div class="flex justify-between font-bold"><span>Volume Total por Etapa (6h):</span><span id="ped-etapa" class="text-emerald-950">0 ml</span></div>
-                            <div class="flex justify-between"><span>• Soro Glicosado 5% (80%):</span><span class="font-bold" id="ped-sg">0 ml</span></div>
-                            <div class="flex justify-between"><span>• Soro Fisiológico 0.9% (20%):</span><span class="font-bold" id="ped-sf">0 ml</span></div>
-                            
-                            <!-- Eletrólitos Detalhados no Holliday -->
-                            <div class="border-t border-emerald-200 pt-1 space-y-1 text-emerald-800">
-                                <span class="font-black text-[10px] block uppercase text-emerald-900">Eletrólitos a acrescentar por etapa (6h):</span>
-                                <div class="flex justify-between"><span>• NaCl 20% (Sódio):</span><span class="font-bold" id="ped-nacl-etapa">0 ml</span></div>
-                                <div class="flex justify-between"><span>• KCl 10% (Potássio - máx 2ml):</span><span class="font-bold" id="ped-kcl-etapa">0 ml</span></div>
-                                <div class="flex justify-between"><span>• Gluconato de Cálcio 10% (máx 2ml):</span><span class="font-bold" id="ped-ca-etapa">0 ml</span></div>
-                            </div>
-
-                            <div class="flex justify-between border-t border-emerald-200 pt-1 font-bold text-emerald-900 text-sm">
-                                <span>Gotejamento Etapa:</span><span id="ped-gts" class="text-orange-600 font-black">0 gts/min</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button onclick="compartilharCalc('Pediatria')" class="w-full py-2.5 bg-teal-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
-                        <span>📤</span> Enviar Prescrição HV ao Telegram
-                    </button>
-                </div>
-            </section>
-
-            <!-- 6. INSULINA NPH & REGULAR IDÊNTICA AO HTML (PSZO) -->
-            <section id="tab-ins" class="sec-calc hidden space-y-4">
-                <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-3">
-                    <h2 class="text-base font-extrabold text-teal-800">🩸 Calculadora Insulina NPH/Regular (PSZO)</h2>
-                    <p class="text-[10px] text-gray-500 font-medium">Metas e escalas baseadas em protocolos brasileiros (PSZO/SUS).</p>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600">Peso do Paciente (kg):</label>
-                        <input type="number" id="ins-peso" value="70" oninput="calcularInsulinaCompleta()" class="w-full p-2 border rounded-xl font-bold text-center bg-gray-50">
-                    </div>
-
-                    <div class="border-t pt-2 space-y-2">
-                        <span class="text-xs font-bold text-gray-700 block uppercase">Glicemias Atuais (mg/dL)</span>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <label>Jejum (manhã): <input type="number" id="ins-glic-jejum" value="120" oninput="calcularInsulinaCompleta()" class="w-full p-1.5 border rounded-lg font-bold text-center"></label>
-                            <label>Pós-café (2h): <input type="number" id="ins-glic-cafe" value="160" oninput="calcularInsulinaCompleta()" class="w-full p-1.5 border rounded-lg font-bold text-center"></label>
-                            <label>Pós-almoço (2h): <input type="number" id="ins-glic-almoco" value="180" oninput="calcularInsulinaCompleta()" class="w-full p-1.5 border rounded-lg font-bold text-center"></label>
-                            <label>Pós-janta (2h): <input type="number" id="ins-glic-janta" value="150" oninput="calcularInsulinaCompleta()" class="w-full p-1.5 border rounded-lg font-bold text-center"></label>
-                            <label class="col-span-2">Noite (antes dormir): <input type="number" id="ins-glic-noite" value="140" oninput="calcularInsulinaCompleta()" class="w-full p-1.5 border rounded-lg font-bold text-center"></label>
-                        </div>
-                    </div>
-
-                    <div class="border-t pt-2 space-y-2">
-                        <span class="text-xs font-bold text-gray-700 block uppercase">Doses Prévias em Uso</span>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <label>NPH Atual (Noite): <input type="number" id="ins-nph-atual" value="20" oninput="calcularInsulinaCompleta()" class="w-full p-1.5 border rounded-lg font-bold text-center"></label>
-                            <label>Bolus Café (Reg): <input type="number" id="ins-bolus-cafe" value="6" oninput="calcularInsulinaCompleta()" class="w-full p-1.5 border rounded-lg font-bold text-center"></label>
-                            <label>Bolus Almoço (Reg): <input type="number" id="ins-bolus-almoco" value="8" oninput="calcularInsulinaCompleta()" class="w-full p-1.5 border rounded-lg font-bold text-center"></label>
-                            <label>Bolus Janta (Reg): <input type="number" id="ins-bolus-janta" value="8" oninput="calcularInsulinaCompleta()" class="w-full p-1.5 border rounded-lg font-bold text-center"></label>
-                        </div>
-                    </div>
-
-                    <!-- TABELA RECOMENDADA IDENTICA A CAPTURA 291 -->
-                    <div class="bg-green-50/70 p-3 rounded-2xl border border-green-200 space-y-2 text-xs mt-3">
-                        <strong class="text-emerald-900 block font-bold text-sm">Doses Recomendadas (Protocolo PSZO):</strong>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-center border-collapse text-xs">
-                                <thead>
-                                    <tr class="bg-blue-600 text-white font-bold">
-                                        <th class="p-1.5 border">Horário</th>
-                                        <th class="p-1.5 border">Glicemia</th>
-                                        <th class="p-1.5 border">Regular (Bolus)</th>
-                                        <th class="p-1.5 border">Ajuste</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabela-insulina-corpo" class="bg-white">
-                                    <!-- Preenchido dinamicamente via JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="pt-2 text-purple-950 font-bold space-y-1">
-                            <p><strong>NPH Basal (noite):</strong> <span id="ins-nph-final" class="text-base font-black text-purple-700">20 U</span></p>
-                            <p class="text-[11px] text-gray-700 font-normal"><strong>Observações:</strong> <span id="ins-obs-final">Dose inicial basal sugerida: 0.2-0.3 U/kg (18U). Monitore 3 dias antes de trocar. Hipoglicemia &lt;70: reduza 50%.</span></p>
-                        </div>
-                    </div>
-
-                    <button onclick="compartilharCalc('Insulina')" class="w-full py-2.5 bg-teal-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
-                        <span>📤</span> Enviar Esquema ao Telegram
-                    </button>
-                </div>
-            </section>
-
-            <!-- 7. ALCOOLEMIA -->
-            <section id="tab-alcool" class="sec-calc hidden space-y-4">
-                <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-3">
-                    <h2 class="text-base font-extrabold text-amber-900">🍺 Alcoolemia Estimada (Widmark)</h2>
-                    <div class="grid grid-cols-2 gap-2">
-                        <select id="tipoBebida" onchange="preenchePercent()" class="w-full p-2 bg-gray-50 border rounded-xl font-bold text-xs">
-                            <option value="cerveja" selected>Cerveja (5%)</option>
-                            <option value="vinho">Vinho (12%)</option>
-                            <option value="destilado">Destilado (40%)</option>
-                        </select>
-                        <input type="number" id="percentAlcool" step="0.1" value="5" oninput="calcAlcool()" class="w-full p-2 bg-gray-50 border rounded-xl text-center font-bold">
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="number" id="quantidadeMl" step="10" value="350" placeholder="Volume ml" oninput="calcAlcool()" class="w-full p-2 bg-gray-50 border rounded-xl text-center font-bold">
-                        <input type="number" id="qtdeDose" step="1" value="1" placeholder="Doses" oninput="calcAlcool()" class="w-full p-2 bg-gray-50 border rounded-xl text-center font-bold">
-                    </div>
-                    <div class="grid grid-cols-3 gap-2">
-                        <input type="number" id="pesoAlcool" step="0.1" value="70" placeholder="Peso kg" oninput="calcAlcool()" class="w-full p-2 bg-gray-50 border rounded-xl text-center font-bold">
-                        <select id="sexoAlcool" onchange="calcAlcool()" class="w-full p-2 bg-gray-50 border rounded-xl font-bold text-xs">
-                            <option value="M">Masc</option>
-                            <option value="F">Fem</option>
-                        </select>
-                        <input type="number" id="tempoAlcool" step="0.1" value="0" placeholder="Horas" oninput="calcAlcool()" class="w-full p-2 bg-gray-50 border rounded-xl text-center font-bold">
-                    </div>
-                    <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 space-y-1 text-xs">
-                        <div class="flex justify-between"><span>Álcool Puro:</span><span id="alc-grs" class="font-bold">14.0 g</span></div>
-                        <div class="flex justify-between border-t border-amber-200 pt-1 font-bold">
-                            <span>Taxa Atual Estimada:</span><span id="alc-bacatual" class="text-sm font-black text-amber-950">0.29 g/L</span>
-                        </div>
-                        <div id="alc-classe" class="p-2 rounded-xl text-[11px] font-bold text-center mt-2"></div>
-                    </div>
-                    <button onclick="compartilharCalc('Alcool')" class="w-full py-2.5 bg-amber-900 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
-                        <span>📤</span> Enviar Relatório ao Telegram
-                    </button>
-                </div>
-            </section>
-
-            <!-- 8. LABORATÓRIO -->
-            <section id="tab-labs" class="sec-calc hidden space-y-4">
-                <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-3">
-                    <h2 class="text-base font-extrabold text-teal-800">📊 Laboratório Rápido</h2>
-                    <div class="flex gap-2">
-                        <input type="number" step="0.1" id="in-hb" placeholder="Hemoglobina" oninput="calcLab()" class="w-full p-2 border rounded-xl text-xs font-bold text-center">
-                        <input type="number" id="in-glic" placeholder="Glicemia Jejum" oninput="calcLab()" class="w-full p-2 border rounded-xl text-xs font-bold text-center">
-                    </div>
-                    <div class="text-xs p-3 bg-gray-50 rounded-2xl border space-y-1">
-                        <div>Hb: <span id="st-hb" class="font-bold text-gray-500">Aguardando</span></div>
-                        <div>Glicemia: <span id="st-glic" class="font-bold text-gray-500">Aguardando</span></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 9. TUMORAIS -->
-            <section id="tab-tumor" class="sec-calc hidden space-y-4">
-                <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-3">
-                    <h2 class="text-base font-extrabold text-teal-800">🎗️ Marcadores Tumorais</h2>
-                    <select id="select-tumor" onchange="calcTumor()" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
-                        <option value="AFP">AFP (&lt; 15 ng/mL - Fígado)</option>
-                        <option value="CEA">CEA (&lt; 5 µg/L - Cólon/Mama)</option>
-                        <option value="CA125">CA 125 (&lt; 35 U/mL - Ovário)</option>
-                        <option value="PSA">PSA (&lt; 4 µg/L - Próstata)</option>
-                    </select>
-                    <input type="number" id="valor-tumor" step="0.1" placeholder="Valor Encontrado" oninput="calcTumor()" class="w-full p-2 bg-gray-50 border rounded-xl text-center font-bold">
-                    <div id="res-tumor" class="text-xs p-3 rounded-2xl border text-center font-bold hidden"></div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- ========================================================================= -->
-    <!-- GUIA 2: GUIA CLÍNICO, ANTÍDOTOS, PRESCRIÇÕES, FICHAS & DM/HAS           -->
-    <!-- ========================================================================= -->
-    <div id="app-guia" class="w-full flex-grow flex flex-col hidden">
-        <div class="bg-slate-900 p-2.5 sticky top-[80px] z-40 shadow-sm">
-            <div class="max-w-md mx-auto">
-                <input type="text" id="globalSearch" onkeyup="filtrarGuia()" placeholder="🔍 Pesquisar em todo o guia (ex: Atropina, IAM, Asma)..." class="w-full py-2 px-3 bg-slate-800 text-white placeholder-gray-400 text-xs rounded-xl border border-slate-700 focus:outline-none focus:bg-white focus:text-gray-900 transition-all font-medium">
-            </div>
-            <div class="max-w-md mx-auto overflow-x-auto no-scrollbar flex gap-1.5 pt-2">
-                <button onclick="mudarTabGuia('tab-fichas')" id="btn-guia-fichas" class="btn-guia shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 border-2 border-rose-500/20">☣️ Fichas Tox (45)</button>
-                <button onclick="mudarTabGuia('tab-antidotos')" id="btn-guia-antidotos" class="btn-guia shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 border border-transparent">💉 Antídotos (15)</button>
-                <button onclick="mudarTabGuia('tab-peconha')" id="btn-guia-peconha" class="btn-guia shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 border border-transparent">🐍 Peçonhentos (8)</button>
-                <button onclick="mudarTabGuia('tab-dmhas')" id="btn-guia-dmhas" class="btn-guia shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 border border-transparent">🫀 DM & HAS</button>
-                <button onclick="mudarTabGuia('tab-presc')" id="btn-guia-presc" class="btn-guia shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 border border-transparent">📋 Prescrições</button>
-            </div>
-        </div>
-
-        <main class="max-w-md mx-auto w-full p-4 space-y-3 flex-grow">
-            <section id="tab-fichas" class="sec-guia space-y-3">
-                <div id="lista-fichas" class="space-y-3"></div>
-            </section>
-            <section id="tab-antidotos" class="sec-guia hidden space-y-3">
-                <div id="lista-antidotos" class="space-y-3"></div>
-            </section>
-            <section id="tab-peconha" class="sec-guia hidden space-y-3">
-                <div id="lista-peconha" class="space-y-3"></div>
-            </section>
-            <section id="tab-dmhas" class="sec-guia hidden space-y-3">
-                <div id="lista-dmhas" class="space-y-3"></div>
-            </section>
-            <section id="tab-presc" class="sec-guia hidden space-y-3">
-                <div id="lista-presc" class="space-y-3"></div>
-            </section>
-        </main>
-    </div>
-
-    <!-- MODAL DE VISUALIZAÇÃO E ENCAMINHAMENTO -->
-    <div id="detailModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end justify-center sm:items-center p-0 sm:p-4">
-        <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-200">
-            <div class="p-3.5 border-b border-gray-100 flex items-center justify-between bg-slate-50">
-                <span id="modalCategory" class="text-[10px] font-black uppercase text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">--</span>
-                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-700 text-lg font-bold p-1">✕</button>
-            </div>
-            <div class="p-4 overflow-y-auto space-y-3 text-xs leading-relaxed" id="modalBody"></div>
-            <div class="p-3 border-t bg-gray-50 flex gap-2">
-                <button id="btnEnviar" onclick="enviarCondutaChat()" class="flex-1 py-3 bg-indigo-700 hover:bg-indigo-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
-                    <span>📤</span> Enviar ao Telegram
-                </button>
-                <button onclick="copiarConduta()" class="px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl text-xs font-bold">
-                    📋 Copiar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCRIPT DE EXECUÇÃO -->
-    <script>
-        const tg = window.Telegram ? window.Telegram.WebApp : null;
-        if (tg) { tg.ready(); tg.expand(); }
-
-        let textoModalAtivo = "";
-        let guiaCarregado = false;
-
-        // ALTERNADOR MASTER: TROCA ENTRE CALCULADORAS E GUIA
-        function alternarApp(appId) {
-            const elCalc = document.getElementById('app-calc');
-            const elGuia = document.getElementById('app-guia');
-            const btnCalc = document.getElementById('btn-master-calc');
-            const btnGuia = document.getElementById('btn-master-guia');
-
-            if (!elCalc || !elGuia) return;
-
-            if (appId === 'app-calc') {
-                elCalc.classList.remove('hidden');
-                elGuia.classList.add('hidden');
-                btnCalc.className = "py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1 bg-teal-600 text-white shadow";
-                btnGuia.className = "py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1 text-gray-400 hover:text-white";
-                mudarTabCalc('tab-ob');
-            } else {
-                elCalc.classList.add('hidden');
-                elGuia.classList.remove('hidden');
-                btnCalc.className = "py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1 text-gray-400 hover:text-white";
-                btnGuia.className = "py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1 bg-indigo-600 text-white shadow";
-                
-                // Lazy loading do guia para performance ultra fluida
-                if (!guiaCarregado) {
-                    renderizarGuia();
-                    guiaCarregado = true;
-                }
-                mudarTabGuia('tab-fichas');
-            }
-        }
-
-        function mudarTabCalc(id) {
-            document.querySelectorAll('.sec-calc').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.btn-calc').forEach(btn => {
-                btn.className = "btn-calc shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-500 border border-transparent";
-            });
-            const alvo = document.getElementById(id);
-            if (alvo) alvo.classList.remove('hidden');
-            const target = document.getElementById(id.replace('tab-', 'btn-sub-'));
-            if (target) target.className = "btn-calc shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-teal-50 text-teal-800 border-2 border-teal-500/20";
-        }
-
-        function mudarTabGuia(id) {
-            document.querySelectorAll('.sec-guia').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.btn-guia').forEach(btn => {
-                btn.className = "btn-guia shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 border border-transparent";
-            });
-            const alvo = document.getElementById(id);
-            if (alvo) alvo.classList.remove('hidden');
-            const target = document.getElementById(id.replace('tab-', 'btn-guia-'));
-            if (target) target.className = "btn-guia shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 border-2 border-rose-500/20";
-        }
-
-        // 1. OBSTETRÍCIA REVISADA
-        function parseDataLocal(dataStr) {
-            if (!dataStr) return null;
-            const partes = dataStr.split('-');
-            return new Date(partes[0], partes[1] - 1, partes[2]);
-        }
-
-        function calcOb() {
-            const dumVal = document.getElementById('dum').value;
-            const dataUsgVal = document.getElementById('data_usg').value;
-            const semUsg = parseInt(document.getElementById('sem_usg').value) || 0;
-            const diasUsg = parseInt(document.getElementById('dias_usg').value) || 0;
-            
-            const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0);
-
-            let igDumDias = null;
-            let igUsgDias = null;
-            let dppFinal = null;
-
-            if (dumVal) {
-                const dDum = parseDataLocal(dumVal);
-                igDumDias = Math.floor((hoje - dDum) / 86400000);
-                if (igDumDias >= 0) {
-                    document.getElementById('ig-dum-txt').innerText = `${Math.floor(igDumDias/7)}s ${igDumDias%7}d`;
-                    let dpp = new Date(dDum);
-                    dpp.setDate(dpp.getDate() + 280);
-                    dppFinal = dpp;
-                    document.getElementById('info-dpp').innerText = "DPP calculada pela DUM (Regra de Naegele)";
-                }
-            } else {
-                document.getElementById('ig-dum-txt').innerText = "--";
-            }
-
-            if (dataUsgVal && (semUsg > 0 || diasUsg > 0)) {
-                const dUsg = parseDataLocal(dataUsgVal);
-                const diasPassados = Math.floor((hoje - dUsg) / 86400000);
-                igUsgDias = (semUsg * 7) + diasUsg + diasPassados;
-                
-                if (igUsgDias >= 0) {
-                    document.getElementById('ig-usg-txt').innerText = `${Math.floor(igUsgDias/7)}s ${igUsgDias%7}d`;
-                    
-                    if (!dumVal) {
-                        const diasRestantes = 280 - ((semUsg * 7) + diasUsg);
-                        let dppU = new Date(dUsg);
-                        dppU.setDate(dppU.getDate() + diasRestantes);
-                        dppFinal = dppU;
-                        document.getElementById('info-dpp').innerText = "DPP calculada pelo Ultrassom (40 semanas)";
-                    }
-                }
-            } else {
-                document.getElementById('ig-usg-txt').innerText = "--";
-            }
-
-            if (dppFinal) {
-                const dStr = String(dppFinal.getDate()).padStart(2, '0');
-                const mStr = String(dppFinal.getMonth() + 1).padStart(2, '0');
-                document.getElementById('dpp-txt').innerText = `${dStr}/${mStr}/${dppFinal.getFullYear()}`;
-            } else {
-                document.getElementById('dpp-txt').innerText = "--/--/----";
-                document.getElementById('info-dpp').innerText = "Informe DUM ou USG";
-            }
-
-            const alertaEl = document.getElementById('alerta-div');
-            if (igDumDias !== null && igUsgDias !== null) {
-                const dif = Math.abs(igDumDias - igUsgDias);
-                alertaEl.classList.remove('hidden');
-                if (dif > 7) {
-                    alertaEl.className = "p-2.5 rounded-xl text-xs font-bold text-center bg-rose-100 text-rose-800";
-                    alertaEl.innerText = `⚠️ Divergência de ${dif} dias entre DUM e USG. Preferir a data do USG precoce!`;
-                } else {
-                    alertaEl.className = "p-2.5 rounded-xl text-xs font-bold text-center bg-teal-100 text-teal-800";
-                    alertaEl.innerText = `✅ DUM e USG concordantes (diferença de apenas ${dif} dias).`;
-                }
-            } else {
-                alertaEl.classList.add('hidden');
-            }
-        }
-
-        // 2. DIETA & IMC
-        function calcDieta() {
-            const sexo = document.getElementById('sexo-dieta').value;
-            const peso = parseFloat(document.getElementById('peso-dieta').value) || 0;
-            const alturaCm = parseFloat(document.getElementById('altura-dieta').value) || 0;
-            const idade = parseInt(document.getElementById('idade-dieta').value) || 0;
-            const ativ = parseFloat(document.getElementById('atividade-dieta').value) || 1.2;
-
-            if (peso > 0 && alturaCm > 0 && idade > 0) {
-                const aM = alturaCm / 100;
-                const imc = peso / (aM * aM);
-                document.getElementById('imc-val').innerText = imc.toFixed(1);
-                document.getElementById('imc-class').innerText = imc < 18.5 ? "Abaixo do peso" : (imc < 25 ? "Normal" : (imc < 30 ? "Sobrepeso" : "Obesidade"));
-                
-                const minP = (18.5 * (aM * aM)).toFixed(1);
-                const maxP = (24.9 * (aM * aM)).toFixed(1);
-                document.getElementById('peso-ideal-range').innerText = `${minP} - ${maxP} kg`;
-
-                let tmb = sexo === 'M' ? 66 + (13.7 * peso) + (5 * alturaCm) - (6.8 * idade) : 655 + (9.6 * peso) + (1.8 * alturaCm) - (4.7 * idade);
-                const tdee = tmb * ativ;
-                const def = tdee - 500;
-                document.getElementById('tmb-kcal').innerText = Math.round(tdee) + " kcal/dia";
-                document.getElementById('emagrecer-kcal').innerText = Math.round(def) + " kcal/dia";
-
-                document.getElementById('macro-prot').innerText = Math.round((def * 0.3) / 4) + "g";
-                document.getElementById('macro-carb').innerText = Math.round((def * 0.4) / 4) + "g";
-                document.getElementById('macro-gord').innerText = Math.round((def * 0.3) / 9) + "g";
-            }
-        }
-
-        // 3. ESCALAS
-        function calcEscalas() {
-            const totG = parseInt(document.getElementById('glasgow-ocular').value) +
-                         parseInt(document.getElementById('glasgow-verbal').value) +
-                         parseInt(document.getElementById('glasgow-motor').value);
-            document.getElementById('total-glasgow').innerText = totG;
-            document.getElementById('desc-glasgow').innerText = totG <= 8 ? "Trauma Grave (IOT)" : (totG <= 12 ? "Trauma Moderado" : "Normal / Trauma Leve");
-
-            const totA = parseInt(document.getElementById('apgar-fc').value) +
-                         parseInt(document.getElementById('apgar-resp').value) +
-                         parseInt(document.getElementById('apgar-tonus').value) +
-                         parseInt(document.getElementById('apgar-ref').value) +
-                         parseInt(document.getElementById('apgar-cor').value);
-            document.getElementById('total-apgar').innerText = totA;
-            document.getElementById('desc-apgar').innerText = totA <= 3 ? "Asfixia grave" : (totA <= 6 ? "Asfixia moderada" : "Adaptação excelente");
-        }
-
-        // 4. LIPÍDICO
-        function calcLip() {
-            const ct = parseFloat(document.getElementById('lip-ct').value);
-            const hdl = parseFloat(document.getElementById('lip-hdl').value);
-            const tg = parseFloat(document.getElementById('lip-tg').value);
-            if (ct > 0 && hdl > 0 && tg > 0) {
-                const ldl = ct - hdl - (tg / 5);
-                document.getElementById('lip-ldl').innerText = ldl.toFixed(1) + " mg/dL";
-                document.getElementById('lip-naohdl').innerText = (ct - hdl).toFixed(1) + " mg/dL";
-                document.getElementById('lip-vldl').innerText = (tg / 5).toFixed(1) + " mg/dL";
-                document.getElementById('lip-c1').innerText = (ct / hdl).toFixed(2);
-                document.getElementById('lip-c2').innerText = (ldl / hdl).toFixed(2);
-                document.getElementById('lip-tghdl').innerText = (tg / hdl).toFixed(2);
-            }
-        }
-
-        // 5. PEDIÁTRICA COM ELETRÓLITOS COMPLETOS NO HOLLIDAY
-        function calcPed() {
-            const p = parseFloat(document.getElementById('peso-ped').value);
-            if (!p || p <= 0) { document.getElementById('res-ped').classList.add('hidden'); return; }
-            document.getElementById('res-ped').classList.remove('hidden');
-
-            const sgPrem = p * 60;
-            document.getElementById('pre-sg15').innerText = sgPrem.toFixed(1) + " ml";
-            document.getElementById('pre-gli50').innerText = (p * 6).toFixed(1) + " ml";
-            document.getElementById('pre-nacl').innerText = (p * 0.6).toFixed(2) + " ml";
-            document.getElementById('pre-kcl').innerText = (p * 0.6).toFixed(2) + " ml";
-            document.getElementById('pre-gts').innerText = (sgPrem / 75).toFixed(1) + " gts/min";
-
-            document.getElementById('hipo-ataque').innerText = (p * 2).toFixed(1) + " ml";
-            const hipoM = (p * 5 * 60 / 50) * 12;
-            document.getElementById('hipo-man').innerText = Math.round(hipoM) + " ml";
-            document.getElementById('hipo-vazao').innerText = (hipoM / 12).toFixed(1) + " ml/h";
-
-            let v24h = p <= 10 ? p * 100 : (p <= 20 ? 1000 + ((p - 10) * 50) : 1500 + ((p - 20) * 20));
-            const vEtapa = v24h / 4;
-            document.getElementById('ped-etapa').innerText = Math.round(vEtapa) + " ml";
-            document.getElementById('ped-sg').innerText = Math.round(vEtapa * 0.8) + " ml";
-            document.getElementById('ped-sf').innerText = Math.round(vEtapa * 0.2) + " ml";
-            
-            const naclEtapa = (vEtapa / 100) * 2;
-            const kclEtapa = Math.min(2.0, (vEtapa / 100) * 1.5);
-            const caEtapa = Math.min(2.0, p <= 10 ? (p * 0.2) : 2.0);
-            
-            document.getElementById('ped-nacl-etapa').innerText = naclEtapa.toFixed(1) + " ml";
-            document.getElementById('ped-kcl-etapa').innerText = kclEtapa.toFixed(1) + " ml";
-            document.getElementById('ped-ca-etapa').innerText = caEtapa.toFixed(1) + " ml";
-            document.getElementById('ped-gts').innerText = Math.round((vEtapa / 6) / 3) + " gts/min";
-        }
-
-        // 6. INSULINA COMPLETA (PSZO)
-        function calcularInsulinaCompleta() {
-            const peso = parseFloat(document.getElementById('ins-peso').value) || 70;
-            const glicJejum = parseInt(document.getElementById('ins-glic-jejum').value) || 120;
-            const glicPosCafe = parseInt(document.getElementById('ins-glic-cafe').value) || 160;
-            const glicPosAlmoco = parseInt(document.getElementById('ins-glic-almoco').value) || 180;
-            const glicPosJanta = parseInt(document.getElementById('ins-glic-janta').value) || 150;
-            const glicNoite = parseInt(document.getElementById('ins-glic-noite').value) || 140;
-
-            const metaPos = 130;
-            const metaBasal = 90;
-            const metaNoite = 120;
-
-            let basalAtual = parseInt(document.getElementById('ins-nph-atual').value) || 20;
-            const bolusCafeAtual = parseInt(document.getElementById('ins-bolus-cafe').value) || 6;
-            const bolusAlmocoAtual = parseInt(document.getElementById('ins-bolus-almoco').value) || 8;
-            const bolusJantaAtual = parseInt(document.getElementById('ins-bolus-janta').value) || 8;
-
-            function suplemento(glic, meta) {
-                const dif = glic - meta;
-                if (dif <= 0) return 0;
-                if (dif <= 50) return 1;
-                if (dif <= 100) return 2;
-                if (dif <= 150) return 3;
-                if (dif <= 200) return 4;
-                if (dif <= 250) return 5;
-                return 6 + Math.floor((dif - 250)/50);
-            }
-
-            const bolusCafe = bolusCafeAtual + suplemento(glicPosCafe, metaPos);
-            const bolusAlmoco = bolusAlmocoAtual + suplemento(glicPosAlmoco, metaPos);
-            const bolusJanta = bolusJantaAtual + suplemento(glicPosJanta, metaPos);
-
-            let ajusteBasal = 0;
-            if (glicJejum > metaBasal + 30) ajusteBasal += 2;
-            else if (glicJejum < metaBasal - 20) ajusteBasal -= 2;
-            if (glicNoite > metaNoite + 30) ajusteBasal += 2;
-            else if (glicNoite < metaNoite - 20) ajusteBasal -= 2;
-            const basalNovo = Math.max(0, basalAtual + ajusteBasal);
-
-            document.getElementById('tabela-insulina-corpo').innerHTML = `
-                <tr class="border-b"><td class="p-1.5 font-bold text-purple-900 border">Café</td><td class="p-1.5 font-bold border">${glicPosCafe}</td><td class="p-1.5 font-black text-purple-700 border">${bolusCafe} U Regular</td><td class="p-1.5 font-bold text-blue-700 border">+${suplemento(glicPosCafe, metaPos)}U</td></tr>
-                <tr class="border-b"><td class="p-1.5 font-bold text-purple-900 border">Almoço</td><td class="p-1.5 font-bold border">${glicPosAlmoco}</td><td class="p-1.5 font-black text-purple-700 border">${bolusAlmoco} U Regular</td><td class="p-1.5 font-bold text-blue-700 border">+${suplemento(glicPosAlmoco, metaPos)}U</td></tr>
-                <tr class="border-b"><td class="p-1.5 font-bold text-purple-900 border">Janta</td><td class="p-1.5 font-bold border">${glicPosJanta}</td><td class="p-1.5 font-black text-purple-700 border">${bolusJanta} U Regular</td><td class="p-1.5 font-bold text-blue-700 border">+${suplemento(glicPosJanta, metaPos)}U</td></tr>
-                <tr class="bg-purple-50/50"><td class="p-1.5 font-bold text-purple-900 border">Jejum/Noite</td><td class="p-1.5 font-bold border">${glicJejum}/${glicNoite}</td><td class="p-1.5 border">-</td><td class="p-1.5 font-bold text-purple-900 border">NPH: ${basalNovo} U (${ajusteBasal >= 0 ? '+' : ''}${ajusteBasal}U)</td></tr>
-            `;
-
-            document.getElementById('ins-nph-final').textContent = `${basalNovo} U`;
-            document.getElementById('ins-obs-final').textContent = `Dose inicial basal sugerida: 0.2-0.3 U/kg (${Math.round(0.25*peso)}U). Monitore 3 dias antes de trocar. Hipoglicemia <70: reduza 50%.`;
-        }
-
-        // 7. ALCOOLEMIA
-        function preenchePercent() {
-            const tipo = document.getElementById('tipoBebida').value;
-            const campo = document.getElementById('percentAlcool');
-            if (tipo === 'cerveja') campo.value = 5;
-            else if (tipo === 'vinho') campo.value = 12;
-            else if (tipo === 'destilado') campo.value = 40;
-            calcAlcool();
-        }
-
-        function calcAlcool() {
-            const perc = parseFloat(document.getElementById('percentAlcool').value || 0);
-            const ml = parseFloat(document.getElementById('quantidadeMl').value || 0);
-            const dose = parseFloat(document.getElementById('qtdeDose').value || 1);
-            const peso = parseFloat(document.getElementById('pesoAlcool').value || 0);
-            const sexo = document.getElementById('sexoAlcool').value;
-            const tempo = parseFloat(document.getElementById('tempoAlcool').value || 0);
-
-            if (!perc || !ml || !peso) return;
-            const alcGrs = (ml * dose) * (perc / 100) * 0.8;
-            const r = (sexo === 'M') ? 0.7 : 0.6;
-            const bacIn = alcGrs / (peso * r);
-            const bacAtual = Math.max(0, bacIn - (0.15 * tempo));
-
-            document.getElementById('alc-grs').innerText = alcGrs.toFixed(1) + " g";
-            document.getElementById('alc-bacatual').innerText = bacAtual.toFixed(2) + " g/L";
-
-            const el = document.getElementById('alc-classe');
-            if (bacAtual < 0.2) {
-                el.innerText = "Abaixo de 0,2 g/L (limite de infração).";
-                el.className = "p-2 rounded-xl text-[11px] font-bold text-center mt-2 bg-green-100 text-green-800";
-            } else if (bacAtual < 0.6) {
-                el.innerText = "0,2 a 0,6 g/L: Infração de trânsito. NÃO DIRIGIR.";
-                el.className = "p-2 rounded-xl text-[11px] font-bold text-center mt-2 bg-yellow-100 text-yellow-800";
-            } else {
-                el.innerText = "≥ 0,6 g/L: CRIME DE TRÂNSITO. NÃO DIRIGIR!";
-                el.className = "p-2 rounded-xl text-[11px] font-bold text-center mt-2 bg-red-100 text-red-800";
-            }
-        }
-
-        function calcLab() {
-            const hb = parseFloat(document.getElementById('in-hb').value);
-            const glic = parseFloat(document.getElementById('in-glic').value);
-            if (!isNaN(hb)) document.getElementById('st-hb').innerText = hb < 12 ? "Anemia" : (hb > 17 ? "Poliglobulia" : "Normal");
-            if (!isNaN(glic)) document.getElementById('st-glic').innerText = glic < 70 ? "Hipoglicemia" : (glic > 99 ? "Elevada" : "Normal");
-        }
-
-        const tRefs = { AFP: 15, CEA: 5, CA125: 35, PSA: 4 };
-        function calcTumor() {
-            const m = document.getElementById('select-tumor').value;
-            const v = parseFloat(document.getElementById('valor-tumor').value);
-            const res = document.getElementById('res-tumor');
-            if (isNaN(v)) { res.classList.add('hidden'); return; }
-            res.classList.remove('hidden');
-            const alto = v > tRefs[m];
-            res.innerText = `${m}: ${v} vs Ref ${tRefs[m]} -> ${alto ? 'ELEVADO' : 'NORMAL'}`;
-            res.className = `text-xs p-3 rounded-2xl border text-center font-bold ${alto ? 'bg-red-50 text-red-700 border-red-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`;
-        }
-
-        function compartilharCalc(tipo) {
-            let txt = `📊 *MEDHUB - ${tipo.toUpperCase()}*\n`;
-            if (tipo === 'Obstetrícia') txt += `• IG DUM: ${document.getElementById('ig-dum-txt').innerText}\n• IG USG: ${document.getElementById('ig-usg-txt').innerText}\n• DPP: ${document.getElementById('dpp-txt').innerText}`;
-            else if (tipo === 'Dieta') txt += `• IMC: ${document.getElementById('imc-val').innerText} (${document.getElementById('imc-class').innerText})\n• Meta Perda: ${document.getElementById('emagrecer-kcal').innerText}`;
-            else if (tipo === 'Escalas') txt += `• Glasgow: ${document.getElementById('total-glasgow').innerText} (${document.getElementById('desc-glasgow').innerText})\n• Apgar: ${document.getElementById('total-apgar').innerText} (${document.getElementById('desc-apgar').innerText})`;
-            else if (tipo === 'Lipidico') txt += `• LDL: ${document.getElementById('lip-ldl').innerText}\n• Não-HDL: ${document.getElementById('lip-naohdl').innerText}\n• Castelli I: ${document.getElementById('lip-c1').innerText}\n• Castelli II: ${document.getElementById('lip-c2').innerText}`;
-            else if (tipo === 'Pediatria') txt += `• Holliday Etapa (6h): ${document.getElementById('ped-etapa').innerText}\n• SG 5%: ${document.getElementById('ped-sg').innerText} | SF 0.9%: ${document.getElementById('ped-sf').innerText}\n• Gotejamento: ${document.getElementById('ped-gts').innerText}`;
-            else if (tipo === 'Alcool') txt += `• Taxa Atual: ${document.getElementById('alc-bacatual').innerText}\n• Situação: ${document.getElementById('alc-classe').innerText}`;
-            else if (tipo === 'Insulina') txt += `• Tabela Regular PSZO e NPH Basal calculadas no MedHub.`;
-
-            if (navigator.clipboard) navigator.clipboard.writeText(txt);
-            let sent = false;
-            if (tg && typeof tg.sendData === 'function') {
-                try { tg.sendData(txt); sent = true; } catch(e) {}
-            }
-            if (!sent) {
-                const url = `https://t.me/share/url?url=${encodeURIComponent(txt)}`;
-                if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
-                else window.open(url, '_blank');
-            }
-        }
-
-        // ==========================================
-        // DADOS DO GUIA CLÍNICO
-        // ==========================================
-        const fichasTox = [
-            { id: "FICHA - 001", nome: "Ácido Acetil Salicílico (Aspirina®)", sin: "Náuseas, hiperventilação, acidose metabólica, zumbidos, letargia.", ex: "Dosagem sérica de AAS (após 6h), gasometria, pH urinário e ECG.", cond: "Lavagem gástrica, carvão ativado seriado; Bicarbonato de Sódio EV para alcalinização urinária; hemodiálise em casos graves." },
-            { id: "FICHA - 002", nome: "Abelhas, Vespas e Marimbondos", sin: "Dor e edema local, anafilaxia, edema de glote e choque. Picadas maciças (>100): rabdomiólise e LRA.", ex: "Hemograma, INR, glicose, CK total, ureia e creatinina.", cond: "Compressas frias, raspagem dos ferrões com lâmina. Adrenalina 1:1000 SC/IM (0,2 a 0,5 ml), anti-histamínicos e hidratação." },
-            { id: "FICHA - 003", nome: "Ácido Clorídrico e Soda Cáustica (Corrosivos)", sin: "Dor orofaríngea intensa, sialorreia, estenose e perfuração esofágica/gástrica.", ex: "RX tórax/abdômen, endoscopia digestiva alta precoce (12-24h).", cond: "NÃO induzir vômito nem lavagem gástrica. Carvão ativado contraindicado. Jejum, analgesia potente e hidratação venosa." },
-            { id: "FICHA - 006", nome: "Solvente Orgânico / Acetona® (Propanona)", sin: "Irritação brônquica, ataxia, hipotensão, náuseas, gastrite hemorrágica e coma em doses maciças.", ex: "Glicemia, TGO, TGP, ureia, creatinina e gasometria.", cond: "Lavagem gástrica e carvão ativado se precoce (<30 min). Suporte respiratório e sintomáticos." },
-            { id: "FICHA - 007", nome: "Broncodilatadores (Teofilina, Aminofilina)", sin: "Taquicardia, broncoespasmo, tremores, arritmias ventriculares, hipocalemia profunda e convulsões.", ex: "ECG contínuo, gasometria, eletrólitos (K, Ca, Mg) e teofilinemia.", cond: "Lavagem gástrica, carvão ativado seriado, Diazepam EV para convulsões, reposição de K e betabloqueador para arritmia." },
-            { id: "FICHA - 008", nome: "Aranha Armadeira (Phoneutria nigriventer)", sin: "Dor lancinante imediata, sudorese local. Gravidade: vômitos, priapismo, edema agudo de pulmão e choque.", ex: "ECG contínuo, eletrólitos e gasometria.", cond: "Infiltração com Lidocaína 2% sem vasoconstritor no ponto da picada. Soro Antiaraquídico (SAA) EV (2 a 6 ampolas)." },
-            { id: "FICHA - 009", nome: "Antidepressivos Tricíclicos (Amitriptilina)", sin: "Boca seca, midríase, rubor, retenção urinária. Gravidade: QRS > 100ms, arritmias ventriculares e coma.", ex: "ECG contínuo (monitorar QRS e QT), gasometria e eletrólitos.", cond: "Lavagem e carvão ativado seriado. Bicarbonato de Sódio 8,4% (1 a 2 mEq/kg EV em bolus) obrigatório se QRS > 100 ms." },
-            { id: "FICHA - 010", nome: "Neurolépticos (Haloperidol, Clorpromazina)", sin: "Crises oculógiras, trismo, distonia aguda e rigidez (síndrome extrapiramidal).", ex: "Avaliação clínica e dosagem de CK total.", cond: "Lavagem e carvão. Antídoto: Biperideno (Akineton®) 3 a 5 mg EV/IM em adultos (0,06 a 0,1 mg/kg em crianças)." },
-            { id: "FICHA - 011", nome: "Plantas com Toxoalbumina (Mamona, Pinhão Roxo)", sin: "Início retardado (horas/dias). Vômitos, cólicas intensas, diarreia sanguinolenta, desidratação grave e choque.", ex: "Hemograma, eletrólitos e função renal/hepática.", cond: "Hidratação venosa vigorosa, lavagem gástrica precoce e carvão ativado em doses seriadas." },
-            { id: "FICHA - 012", nome: "Aranha Viúva Negra (Latrodectus / Janduim)", sin: "Dor intensa irradiada para abdômen (abdômen em tábua simulando abdômen agudo cirúrgico), tremores e sudorese profusa.", ex: "Eletrólitos, CK total, sumário de urina e ECG.", cond: "Opioides para dor, Diazepam EV para relaxamento muscular, Gluconato de Cálcio 10% EV e Soro Antilatrodectus (1-2 ampolas)." },
-            { id: "FICHA - 013", nome: "Aranha Marrom (Loxosceles sp.)", sin: "Picada pouco dolorosa. Após 12-24h: placa marmórea com necrose central. Forma cutâneo-visceral: hemólise intravascular e LRA.", ex: "Hemograma, sumário de urina, bilirrubinas, LDH e creatinina.", cond: "Prednisona 0,5 a 1 mg/kg/dia por 7-10 dias, Dapsona 100 mg/dia. Soro Antiloxoscélico / Antiaraquídico (5 a 10 ampolas)." },
-            { id: "FICHA - 014", nome: "Peróxido de Hidrogênio (Água Oxigenada concentrada)", sin: "Irritação digestiva, distensão abdominal mecânica por liberação rápida de oxigênio gasoso, queimação e risco de embolia.", ex: "Endoscopia se concentração elevada (>10%).", cond: "Tratamento sintomático e hidratação. Lavar pele e mucosas com água abundante." },
-            { id: "FICHA - 015", nome: "Descongestionantes / Nafazolina (Adnax®, Sorine®)", sin: "Sonolência, letargia profunda, bradicardia acentuada, hipotermia, sudorese e depressão respiratória grave (especialmente em bebês).", ex: "Glicemia, gasometria e monitorização ventilatória.", cond: "Lavagem gástrica até 1h e suporte respiratório. Naloxona EV (0,01 a 0,1 mg/kg) pode reverter a depressão central." },
-            { id: "FICHA - 016", nome: "Anti-Histamínicos (Prometazina, Difenidramina)", sin: "Sedação ou excitação paradoxal, delírios, alucinações, boca seca, midríase, retenção urinária e hipertermia.", ex: "Eletrólitos, CK total e ECG.", cond: "Lavagem gástrica e carvão ativado. Diazepam EV para controle de agitação e convulsões. Resfriamento corporal." },
-            { id: "FICHA - 017", nome: "Aminas Simpaticomiméticas (Adrenalina, Efedrina)", sin: "Tremores, midríase, hipertensão arterial severa, taquiarritmias ventriculares, dor torácica e risco de AVE/IAM.", ex: "ECG contínuo, glicemia e eletrólitos.", cond: "Diazepam EV para relaxamento e controle adrenérgico. Nitroprussiato de Sódio (Nipride) nas crises hipertensivas severas." },
-            { id: "FICHA - 018", nome: "Paracetamol (Acetaminofeno)", sin: "Primeiras 24h assintomáticas. Após 48-72h: necrose hepática maciça, icterícia, encefalopatia e coagulopatia grave.", ex: "Nível sérico de paracetamol (Rumack-Matthew após 4h), AST, ALT, TP/INR e creatinina.", cond: "Antídoto: N-Acetilcisteína (NAC) EV: 150 mg/kg em 1h, depois 50 mg/kg em 4h e 100 mg/kg nas 16h seguintes." },
-            { id: "FICHA - 021", nome: "Atropina e Antimuscarínicos", sin: "Boca seca, pele vermelha e seca, midríase paralítica, taquicardia sinusal, retenção urinária, delírio e hipertermia.", ex: "Eletrólitos, ECG contínuo e monitorização térmica.", cond: "Lavagem gástrica e carvão ativado. Diazepam para sedação. Medidas físicas para controle térmico." },
-            { id: "FICHA - 022", nome: "Cobra - Bothrops (Jararaca, Urutu)", sin: "Dor, edema indurado de progressão rápida, equimoses, bolhas e gengivorragia. Risco de choque e insuficiência renal.", ex: "Tempo de Coagulação (TC), TAP, TPTA, hemograma e creatinina.", cond: "Soro Antibotrópico (SAB) EV puro após prometazina IM: Leve = 2-4 amp; Moderado = 5-8 amp; Grave = 12 amp." },
-            { id: "FICHA - 023", nome: "Benzodiazepínicos (Diazepam, Clonazepam)", sin: "Sonolência, ataxia, disartria, hipotonia e confusão. Coma com depressão respiratória em doses maciças.", ex: "Glicemia capilar e oximetria de pulso.", cond: "Suporte de vias aéreas e oxigênio. Antídoto: Flumazenil 0,2 a 0,3 mg EV lento (máx 3 mg)." },
-            { id: "FICHA - 024", nome: "Barbitúricos (Fenobarbital / Gardenal®)", sin: "Letargia, fala arrastada, ataxia, coma profundo flácido, hipotensão, choque, bradipneia e lesões bolhosas cutâneas.", ex: "Eletrólitos, glicose, gasometria e RX de tórax.", cond: "Lavagem gástrica, carvão ativado seriado (a cada 4h por 48h) e alcalinização urinária com Bicarbonato de Sódio. Hemodiálise se severo." },
-            { id: "FICHA - 026", nome: "Gás Butano / Gás de Cozinha (GLP)", sin: "Asfixia por deslocamento de oxigênio. Narcose, sonolência, arritmias ventriculares por sensibilização miocárdica e parada respiratória.", ex: "Gasometria arterial e ECG.", cond: "Remoção para local arejado, oxigênio a 100% sob máscara. Evitar aminas simpaticomiméticas." },
-            { id: "FICHA - 027", nome: "Cafeína", sin: "Insônia, tremores musculares finos, taquicardia, extrassístoles, arritmias ventriculares, vômitos e crises convulsivas.", ex: "ECG contínuo, eletrólitos (K) e glicemia.", cond: "Carvão ativado, Diazepam EV para tremores e convulsões. Betabloqueador cardioseletivo para controle de taquiarritmias." },
-            { id: "FICHA - 030", nome: "Rodenticidas Cumarínicos (Raticidas)", sin: "Inibição de fatores da coagulação (II, VII, IX e X). Gengivorragia, epistaxe, hematúria, equimoses espontâneas e melena.", ex: "Tempo de Protrombina (TAP / INR) seriado.", cond: "Carvão ativado precoce. Antídoto: Vitamina K1 (Fitomenadiona) 10 a 25 mg IM ou EV diluída lenta de 8/8h. Plasma Fresco se sangramento ativo." },
-            { id: "FICHA - 031", nome: "Acetato de Polivinila / Cola Branca", sin: "Praticamente atóxico. Ingestões volumosas podem provocar náuseas e vômitos mecânicos leves.", ex: "Avaliação clínica.", cond: "Ofertar líquidos e tranquilizar os responsáveis." },
-            { id: "FICHA - 032", nome: "Etanol / Álcool Etílico (Intoxicação Aguda)", sin: "Desinibição, euforia seguida de ataxia, disartria, hipotermia, hipoglicemia severa (em crianças), estupor e coma alcoólico.", ex: "Glicemia capilar obrigatória, eletrólitos e gasometria.", cond: "Glicose a 50% EV (20 a 50 ml) precedida de Tiamina 100 mg IM/EV em adultos. Agasalhar para evitar hipotermia." },
-            { id: "FICHA - 033", nome: "Plantas com Oxalato de Cálcio (Comigo-Ninguém-Pode)", sin: "Dor em queimação imediata na boca, edema volumoso de língua, lábios e glote com asfixia mecânica, sialorreia e disfagia.", ex: "Inspeção visual orofaríngea e laringoscopia.", cond: "NÃO provocar vômito nem lavagem. Gelo local, leite frio ou sais de cálcio VO. Corticoides e analgesia potente. IOT se edema de glote." },
-            { id: "FICHA - 034", nome: "Cobra - Crotalus (Cascavel)", sin: "Edema local mínimo com parestesia. Fácies neurotóxica (ptose palpebral, diplopia), mialgia generalizada e urina escura.", ex: "CK total, sumário de urina, ureia, creatinina e tempo de coagulação.", cond: "Hidratação venosa vigorosa imediata (diurese clara >1-2 ml/kg/h). Soro Anticrotálico (SAC) EV: Moderado = 10 amp; Grave = 20 amp." },
-            { id: "FICHA - 035", nome: "Cobra - Micrurus (Coral Verdadeira)", sin: "Sem lesão inflamatória local. Ptose palpebral, oftalmoplegia, salivação espessa, paralisia flácida e parada respiratória por asfixia.", ex: "Gasometria arterial, oximetria e monitorização ventilatória.", cond: "TODO CASO É GRAVE. 10 ampolas de Soro Antielapídico (SAEl) EV. Suporte de via aérea (IOT). Teste com Neostigmina + Atropina." },
-            { id: "FICHA - 037", nome: "Desinfetantes Domésticos / Pinho", sin: "Lesão cáustica em mucosas, vômitos, dor retroesternal, depressão do SNC e risco de pneumonite química por aspiração.", ex: "RX de tórax se tosse/engasgo, endoscopia se dor severa.", cond: "Não provocar vômito. Pequenas doses de água. Protetor gástrico e observação clínica." },
-            { id: "FICHA - 040", nome: "Cobra Não Peçonhenta (Cipó, Caninana, Jiboia)", sin: "Marcas puntiformes ou lacerações superficiais em ferradura. Sem manifestação sistêmica ou alteração de coagulação.", ex: "Tempo de coagulação em casos de dúvida.", cond: "Lavar local com água e sabão, antissepsia, vacina antitetânica e analgesia simples." },
-            { id: "FICHA - 044", nome: "Fluoreto de Sódio (Flúor Odontológico)", sin: "Dor abdominal, vômitos cáusticos, tetania, hipocalcemia aguda severa, hipomagnesemia e arritmias ventriculares graves.", ex: "Cálcio iônico, magnésio, potássio e ECG.", cond: "Sais de cálcio VO (leite, carbonato). Gluconato de Cálcio 10% EV lento e Sulfato de Magnésio EV para estabilizar miocárdio." },
-            { id: "FICHA - 045", nome: "Produtos de Baixa Toxicidade (Giz, Lápis, Batom)", sin: "Assintomático ou leve irritação gástrica mecânica transitória.", ex: "Desnecessários.", cond: "Ofertar líquidos e tranquilizar os responsáveis." },
-            { id: "FICHA - 046", nome: "Desincrustantes / Ácido Oxálico", sin: "Queimadura química profunda na orofaringe, hematêmese, acidose metabólica grave, hipocalcemia aguda com tetania e choque.", ex: "Endoscopia precoce, gasometria e eletrólitos (cálcio).", cond: "Jejum absoluto, analgesia opioide, expansão venosa e reposição vigorosa de Gluconato de Cálcio EV." },
-            { id: "FICHA - 047", nome: "Detergentes Catiônicos / Amaciantes", sin: "Queimaduras corrosivas no trato digestivo, náuseas, vômitos, sialorreia, depressão do SNC e hipotensão arterial.", ex: "Endoscopia digestiva se concentração elevada (>5%).", cond: "Demulcentes orais (hidróxido de alumínio). Suporte ventilatório e hidratação venosa." },
-            { id: "FICHA - 049", nome: "Coagulantes / Ácido Épsilon-Aminocapróico (Ipsilon®)", sin: "Hipotensão severa e bradicardia se infusão rápida. Tromboses e necrose isquêmica tecidual.", ex: "ECG e coagulograma.", cond: "Suspender medicamento e suporte hemodinâmico com fluidos." },
-            { id: "FICHA - 050", nome: "Piretroides (SBP, K-Othrine, Baygon)", sin: "Parestesias em face e lábios, prurido, salivação, tremores, convulsões e prolongamento de intervalo QT no ECG.", ex: "ECG para avaliação de QT e glicemia.", cond: "Lavar pele com água e sabão. Carvão ativado se ingestão. Diazepam EV para controle de convulsões." },
-            { id: "FICHA - 051", nome: "Monóxido de Carbono (Fumaça / Incêndio)", sin: "Cefaleia latejante, náuseas, dispneia, confusão mental, síncope, convulsões e PCR por hipóxia anóxica tecidual.", ex: "Dosagem de Carboxihemoglobina (HbCO), gasometria e lactato.", cond: "Retirar da fonte. Oxigênio a 100% sob máscara com reservatório ou IOT até normalizar HbCO. Considerar câmara hiperbárica." },
-            { id: "FICHA - 053", nome: "Aranha Caranguejeira", sin: "Picada com dor local discreta. Cerdas urticantes causam prurido intenso, pápulas eritematosas e conjuntivite.", ex: "Avaliação clínica.", cond: "Lavagem com água e sabão. Anti-histamínicos e pomadas de corticoide." },
-            { id: "FICHA - 054", nome: "Mercúrio (Termômetro / Sais Inorgânicos)", sin: "Termômetro quebrado é atóxico no TGI íntegro. Vapores ou sais inorgânicos causam pneumonite química, estomatite e LRA.", ex: "Dosagem urinária de mercúrio e função renal.", cond: "Para termômetro: tranquilizar. Sais: Dimercaprol (BAL) IM 3 a 5 mg/kg a cada 4h." },
-            { id: "FICHA - 056", nome: "Organoclorados (BHC, Aldrin, DDT)", sin: "Parestesia perioral, hiperexcitabilidade, tremores generalizados, crises convulsivas epileptiformes de repetição e arritmias.", ex: "Eletrólitos, ECG contínuo e gasometria.", cond: "Descontaminação da pele. Carvão ativado seriado. Diazepam EV em altas doses para convulsões. Contraindicado epinefrina." },
-            { id: "FICHA - 057", nome: "Organofosforados e Carbamatos (Chumbinho)", sin: "Síndrome Colinérgica: Miose pontual, broncorreia severa, broncoespasmo, bradicardia, sialorreia e fasciculações.", ex: "Colinesterase eritrocitária, gasometria e ECG.", cond: "Descontaminação cutânea. Antídoto: Atropina 1 a 4 mg EV bolus (dobrar a cada 5-10 min até secar pulmão). Pralidoxima se organofosforado." },
-            { id: "FICHA - 058", nome: "Opioides (Morfina, Fentanil, Tramadol)", sin: "Tríade clássica: Miose pupilar pontiforme, Coma e Depressão respiratória severa (bradipneia/apneia).", ex: "Gasometria arterial e glicemia.", cond: "Garantir ventilação invasiva/máscara. Antídoto: Naloxona 0,4 a 2 mg EV a cada 2-3 min até normalizar respiração." },
-            { id: "FICHA - 059", nome: "Derivados de Petróleo (Querosene, Gasolina, Varsol)", sin: "Aspiração respiratória gera pneumonia química grave, tosse sufocante, taquipneia, febre e hipoxemia. Ingestão causa coma.", ex: "RX de tórax imediato e controle após 6h, gasometria arterial.", cond: "NÃO induzir vômito nem lavagem gástrica (risco extremo de aspiração). Oxigênio e suporte ventilatório." },
-            { id: "FICHA - 060", nome: "Antieméticos (Metoclopramida / Plasil®, Bromoprida)", sin: "Reação extrapiramidal / distonia aguda: trismo, crise oculógira, espasmos faciais e torcicolo súbito.", ex: "Avaliação clínica.", cond: "Antídoto: Biperideno (Akineton®) 3 a 5 mg EV/IM (0,06 a 0,1 mg/kg em crianças) com melhora rápida." },
-            { id: "FICHA - 066", nome: "Taturanas Urticantes / Lonomia sp.", sin: "Dor em queimação local. Gênero Lonomia causa síndrome hemorrágica sistêmica (gengivorragia, equimoses, hematúria) e LRA.", ex: "Tempo de Coagulação (TC), TAP, TPTA, hemograma e creatinina.", cond: "Compressas frias e anestésico local. Se acidente por Lonomia com coagulopatia: Soro Antilonômico (SALon) EV (5 a 10 ampolas)." },
-            { id: "FICHA - 068", nome: "Sulfato Ferroso (Intoxicação por Ferro)", sin: "Fase 1: vômitos e diarreia hemorrágicos. Fase 2: melhora aparente (6-24h). Fase 3: choque circulatório, acidose metabólica grave e falência renal.", ex: "Ferro sérico, gasometria e RX de abdômen.", cond: "Lavagem precoce com SF. Carvão ativado ineficaz. Antídoto: Deferoxamina (Desferal®) EV em infusão contínua de 15 mg/kg/h." },
-            { id: "FICHA - 078", nome: "Cobra - Lachesis (Surucucu Pico-de-Jaca)", sin: "Dor e necrose tecidual extensas associadas à Síndrome Vagal intensa: bradicardia, hipotensão arterial grave, diarreia profusa e cólicas.", ex: "Tempo de coagulação, hemograma, ureia e creatinina.", cond: "Expansão volêmica vigorosa. Soro Antilaquético (SAL) EV: Moderado = 10 amp; Grave = 20 amp." },
-            { id: "FICHA - 079", nome: "Metanol (Álcool Metílico / Solvente)", sin: "Período assintomático de 12-24h seguido por vômitos, acidose metabólica grave, borramento visual e cegueira permanente.", ex: "Gasometria arterial, eletrólitos, amilase e dosagem de formato.", cond: "Bicarbonato EV. Antídoto: Etanol a 10% EV (ataque 0,8 g/kg) ou Fomepizol. Ácido Folínico (Leucovorin 50mg EV 6/6h). Hemodiálise." },
-            { id: "FICHA - 098", nome: "Caravelas e Águas-Vivas (Cnidários)", sin: "Dor queimante violenta imediata com lesões lineares eritematosas e bolhas. Risco de choque anafilático.", ex: "Monitorização de sinais vitais.", cond: "NUNCA usar água doce. Lavar profusamente com ÁGUA DO MAR ou VINAGRE (Ácido Acético 5%) por 30 minutos contínuos. Retirar tentáculos com pinça." },
-            { id: "FICHA - 099", nome: "Betabloqueadores (Propranolol, Metoprolol, Atenolol)", sin: "Bradicardia sinusal severa, bloqueio atrioventricular (BAV), hipotensão refratária, choque cardiogênico e convulsões.", ex: "ECG contínuo, glicemia e eletrólitos.", cond: "Atropina 0,5 a 2 mg EV. Antídoto principal: Glucagon 5 a 10 mg EV em bolus seguido de infusão contínua (1 a 5 mg/h)." },
-            { id: "FICHA - 135", nome: "Sapos Venenosos (Bufo spp. / Bufotoxinas)", sin: "Toxinas com ação digitálica. Salivação, náuseas, bradicardia grave, BAV de alto grau, fibrilação ventricular e hipercalemia.", ex: "ECG contínuo e potássio sérico.", cond: "Lavar cavidade oral. Atropina EV para bradicardia. Fenitoína para arritmias ventriculares. Contraindicado Gluconato de Cálcio." }
-        ];
-
-        const antidotosData = [
-            { nome: "N-Acetilcisteína (NAC)", ap: "Ampolas 300 / 400 mg (10%)", ind: "Paracetamol (Acetaminofeno)", dose: "Ataque: 150 mg/kg em 200 ml SG 5% em 1h. Manutenção: 50 mg/kg em 4h e 100 mg/kg nas 16h seguintes." },
-            { nome: "Atropina", ap: "Ampola 0,25 mg / 1 ml", ind: "Organofosforados e Carbamatos (Chumbinho)", dose: "Adulto: 1 a 4 mg EV em bolus. Criança: 0,02 a 0,05 mg/kg. Dobrar a dose a cada 5-10 min até atropinização (secar secreções pulmonares)." },
-            { nome: "Naloxona", ap: "Ampola 0,4 mg / 1 ml", ind: "Opioides (Morfina, Fentanil, Tramadol, Heroína)", dose: "0,4 a 2,0 mg EV/IM a cada 2-3 minutos até normalizar o padrão respiratório (máximo 10 mg)." },
-            { nome: "Flumazenil", ap: "Ampola 0,5 mg / 5 ml", ind: "Benzodiazepínicos (Reversão de coma isolado)", dose: "Adulto: 0,2 a 0,3 mg EV lento em 30s. Repetir 0,1 mg a cada 60s até máx 3 mg. Criança: 0,01 mg/kg." },
-            { nome: "Biperideno (Akineton®)", ap: "Ampola 5 mg / 1 ml", ind: "Síndrome Extrapiramidal / Distonia por Neurolépticos/Plasil", dose: "Adulto: 3 a 5 mg IM ou EV lento a cada 4-6h. Criança: 0,06 a 0,1 mg/kg/dose." },
-            { nome: "Bicarbonato de Sódio 8,4%", ap: "Ampola 10 ml a 8,4% (1 mEq/ml)", ind: "Antidepressivos Tricíclicos (QRS largo >100ms) / Alcalinização", dose: "1 a 2 mEq/kg EV em bolus rápido até estreitar QRS (<100 ms) e elevar pH arterial para 7,45-7,55." },
-            { nome: "Azul de Metileno 1%", ap: "Ampola 5 ml a 1%", ind: "Metemoglobinemia tóxica (Dapsona, Prilocaína, Anilinas)", dose: "1 a 2 mg/kg EV em infusão lenta de 5 minutos. Pode ser repetido após 1h se MetHb > 30%." },
-            { nome: "Vitamina K1 (Fitomenadiona)", ap: "Ampola 10 mg / 1 ml", ind: "Raticidas Cumarínicos e Varfarina", dose: "Adulto: 10 a 25 mg IM ou EV diluída lenta. Criança: 1 a 5 mg. Repetir conforme controle de TAP/INR." },
-            { nome: "Carvão Ativado", ap: "Pó para suspensão oral", ind: "Descontaminação gastrointestinal geral", dose: "1 a 2 g/kg de peso diluído em água ou soro fisiológico / manitol VO ou por SNG." },
-            { nome: "Deferoxamina (Desferal®)", ap: "Ampola 500 mg", ind: "Intoxicação aguda grave por Ferro", dose: "Ataque: 90 mg/kg IM (máx 1g). Casos graves com choque: infusão contínua de 15 mg/kg/h EV." },
-            { nome: "Dimercaprol (BAL)", ap: "Ampola 100 mg / 1 ml", ind: "Mercúrio inorgânico, Arsênico, Chumbo", dose: "3 a 5 mg/kg/dose IM a cada 4-6h por 2 dias; depois de 12/12h por 7 a 10 dias." },
-            { nome: "Etanol Absoluto / 10%", ap: "Solução EV ou oral a 30%", ind: "Metanol e Etilenoglicol", dose: "Ataque: 0,8 g/kg. Manutenção: 130 mg/kg/h (aumentar para 250-350 mg/kg/h se em hemodiálise)." },
-            { nome: "Hidroxocobalamina", ap: "Ampola injetável", ind: "Intoxicação por Cianeto (Fumaça de incêndio)", dose: "Adulto: 5 g EV em 15 minutos (ou 70 mg/kg em crianças)." },
-            { nome: "Pralidoxima (Contrathion®)", ap: "Ampola 200 mg", ind: "Organofosforados (Reativador da Acetilcolinesterase)", dose: "Adulto: 1 a 2 g EV em 10 minutos. Manutenção: 200 a 500 mg/h em BIC." },
-            { nome: "Glucagon", ap: "Ampola 1 mg", ind: "Intoxicação grave por Betabloqueadores", dose: "5 a 10 mg EV em bolus em 1 minuto, seguido de infusão contínua de 1 a 5 mg/h." }
-        ];
-
-        const peconhaData = [
-            { nome: "Bothrops (Jararaca, Urutu)", tipo: "Botrópico", quadro: "Ação Proteolítica, Coagulante e Hemorrágica. Dor, edema indurado e equimose locais. Bolhas necróticas e gengivorragia. Risco de choque e insuficiência renal aguda.", conduta: "Lavar local com água e sabão. Membro elevado. Analgesia.\n• Leve: 2 a 4 ampolas de Soro Antibotrópico (SAB) EV.\n• Moderado: 5 a 8 ampolas de SAB EV.\n• Grave: 12 ampolas de SAB EV." },
-            { nome: "Crotalus (Cascavel)", tipo: "Crotálico", quadro: "Ação Neurotóxica e Miotóxica. Edema local mínimo com parestesia. Fácies neurotóxica (ptose palpebral, diplopia), mialgia generalizada e urina escura cor de refrigerante de cola.", conduta: "Hidratação venosa vigorosa imediata (manter diurese clara >1-2 ml/kg/h).\n• Moderado: 10 ampolas de Soro Anticrotálico (SAC) EV.\n• Grave: 20 ampolas de SAC EV." },
-            { nome: "Lachesis (Surucucu Pico-de-Jaca)", tipo: "Laquético", quadro: "Ação Proteolítica, Coagulante, Hemorrágica e Neurotóxica Vagal. Dor e necrose extensas associadas a manifestações vagais intensas (bradicardia, hipotensão, diarreia profusa).", conduta: "Expansão volêmica vigorosa e combate ao choque.\n• Moderado: 10 ampolas de Soro Antilaquético (SAL) EV.\n• Grave: 20 ampolas de SAL EV." },
-            { nome: "Micrurus (Coral-Verdadeira)", tipo: "Elapídico", quadro: "Ação Neurotóxica pré e pós-sináptica. Sem sinais locais. Ptose palpebral, diplopia, salivação, paralisia de membros e parada respiratória por paralisia diafragmática.", conduta: "TODO CASO É CONSIDERADO GRAVE.\n• Soro Antielapídico (SAEl) EV: 10 ampolas.\n• Suporte ventilatório imediato (IOT).\n• Teste com Neostigmina + Atropina." },
-            { nome: "Escorpião (Tityus stigmurus / serrulatus)", tipo: "Escorpiões", quadro: "Leve: dor local intensa e queimação. Moderado/Grave (crianças): vômitos profusos, sudorese generalizada, sialorreia, hipertensão/hipotensão, edema pulmonar e choque.", conduta: "Bloqueio anestésico com Lidocaína 2% sem vasoconstritor.\n• Moderado: 2 a 4 ampolas de Soro Antiescorpiônico EV.\n• Grave: 4 a 6 ampolas de Soro Antiescorpiônico EV." },
-            { nome: "Aranha Marrom (Loxosceles sp.)", tipo: "Aranhas", quadro: "Picada pouco dolorosa. Após 12-24h: placa marmórea com necrose central. Forma cutâneo-visceral: hemólise intravascular maciça, icterícia e insuficiência renal aguda.", conduta: "Prednisona 0,5-1 mg/kg/dia, Dapsona 100 mg/dia.\n• Cutâneo Grave: 5 ampolas de Soro Antiloxoscélico / Antiaraquídico EV.\n• Cutâneo-Visceral: 10 ampolas de Soro EV." },
-            { nome: "Aranha Armadeira (Phoneutria nigriventer)", tipo: "Aranhas", quadro: "Dor lancinante imediata irradiando para o membro. Casos graves: agitação, sialorreia, priapismo, arritmias, edema agudo de pulmão e choque neurogênico.", conduta: "Infiltração anestésica com Lidocaína 2% sem vasoconstritor.\n• Moderado: 2 a 4 ampolas de Soro Antiaraquídico (SAA) EV.\n• Grave: 5 a 10 ampolas de SAA EV." },
-            { nome: "Caravelas e Águas-Vivas (Cnidários)", tipo: "Marinhos", quadro: "Dor queimante imediata, lesões lineares urticariformes e bolhas. Risco de espasmos musculares sistêmicos e anafilaxia.", conduta: "NUNCA usar água doce. Lavar profusamente com ÁGUA DO MAR ou VINAGRE (Ácido Acético 5%) por 30 minutos contínuos. Retirar tentáculos com pinça." }
-        ];
-
-        const dmhasData = [
-            { titulo: "🩸 DIABETES MELLITUS: Etapas de Intensificação (1 a 4)", cat: "DM Terapêutica", txt: "• Etapa 1: NPH ou Lantus DU 0,2 U/kg/dia ao deitar + Orais. Se GJ > 180: aumentar 2-4U a cada 3 dias. Se hipoglicemia: reduzir 4U ou 10% da dose.\n• Etapa 2: Pico pós-prandial detectado: Associar NPH + Insulina Rápida (IR) no almoço.\n• Etapa 3: Pico em mais de uma refeição: Iniciar 2ª dose de NPH com 4U, depois aumentar 2U a cada 3 dias.\n• Etapa 4: Sem resposta: Progredir para 2 NPH + 3 IR (Opção: 3 doses de NPH)." },
-            { titulo: "🩸 DIABETES MELLITUS: Ajustes de Glicemia por HGT", cat: "DM Monitorização", txt: "• Rotina: HGTs em jejum, antes do almoço, antes do jantar e ao deitar.\n• GJ Aumentada Antes do Almoço: Adicionar Insulina Rápida (IR) antes do café da manhã.\n• GJ Aumentada Antes do Jantar: Adicionar NPH antes do café da manhã OU Insulina Rápida (IR) antes do almoço.\n• Controle Trimestral: Avaliar HbA1c a cada 3 meses. Se HbA1c > 7%, alterar o esquema terapêutico." },
-            { titulo: "🫀 HIPERTENSÃO ARTERIAL (HAS): Estratégia e Progressão (1 a 4)", cat: "HAS Estratégia", txt: "• Etapa 1: Grau 1 com baixo risco CV: monoterapia de 1ª linha. Grau 1 alto risco ou Graus 2/3: associação de 2 drogas de 1ª linha de classes diferentes.\n• Etapa 2: Aumentar doses até alvo da PA. Se refratário a duas drogas em dose máxima tolerada, associar 3ª classe de 1ª linha (Tiazídico + BCC + IECA/BRA).\n• Etapa 3: Se fora do alvo apesar de 3 drogas, adicionar Espironolactona (25 a 50 mg/dia) como 4ª droga.\n• Etapa 4: Hipertensão refratária com 4 drogas: adicionar sequencialmente drogas de 2ª linha.\n⚠️ Regra de Ouro: NUNCA associar IECA (Captopril/Enalapril) e BRA (Losartana/Valsartana)." },
-            { titulo: "🫀 HIPERTENSÃO ARTERIAL (HAS): Arsenal Terapêutico (Doses)", cat: "HAS Fármacos", txt: "Drogas de 1ª Linha:\n- Enalapril: 5-40 mg/dia VO (1-2x/dia)\n- Captopril: 25-150 mg/dia VO (2-3x/dia)\n- Losartana: 25-100 mg/dia VO (1-2x/dia)\n- Hidroclorotiazida: 12,5-25 mg VO 1x/dia\n- Anlodipino: 2,5-10 mg VO 1x/dia\n- Espironolactona: 25-200 mg/dia VO 1x/dia\n\nDrogas de 2ª Linha:\n- Atenolol: 25-100 mg/dia VO 12/12h\n- Carvedilol: 12,5-50 mg/dia VO 12/12h\n- Propranolol: 40-160 mg/dia VO até 6/6h (máx 640mg)\n- Hidralazina: 25-50 mg/dia VO de 8/8h\n- Furosemida: 20-80 mg/dia VO (de 12/12h até 6/6h)." },
-            { titulo: "🫀 HIPERTENSÃO ARTERIAL (HAS): Populações Especiais", cat: "HAS Populações", txt: "• Raça Negra: Tiazídicos e BCC (Anlodipino).\n• Idosos: Tiazídicos + Betabloqueadores; IECA; BRA; BCC.\n• Gestantes: Alfa Metildopa (1ª escolha), Hidralazina. Contraindicados IECA e BRA.\n• Diabetes Mellitus / Nefropatas: IECA e BRA (nefroproteção).\n• Pós-IAM: IECA e Betabloqueadores.\n• Pós-AVC Isquêmico: Tiazídicos, IECA e BRA.\n• IC Sistólica: IECA, BRA, Betabloqueadores, Espironolactona." },
-            { titulo: "🌿 TRATAMENTO NÃO MEDICAMENTOSO (HAS & DCV)", cat: "HAS Não-Med", txt: "• Perda de Peso: Manter IMC normal (entre 18,5-24,9 kg/m²).\n• Dieta: Rica em frutas e vegetais, baixo teor de gorduras saturadas.\n• Sódio: Restrição para ≤ 2 g/dia de sódio (6 g de sal/dia).\n• Atividade Física: Exercício aeróbico regular por pelo menos 30 min diários.\n• Álcool: Consumo moderado (<30 mL/dia de etanol).\n• Tabagismo: Cessação total." }
-        ];
-
-        const prescricoesData = [
-            { titulo: "Drogas de Urgência Injetáveis Pediátricas", cat: "Peds Urgência", txt: "- Decadron: Peso/20 IM ou Peso/25 IM\n- Dipirona (1000mg/2ml): Peso/20 IM\n- Ondansetrona: Peso/20 ml IM\n- Dramin/Bromoprida/Buscopan/Plasil: Peso/30 IM\n- Prometazina: Peso/50 ml IM\n- Adrenalina (PCR): 1 amp + 9ml ABD -> 0,1 ml/kg IV\n- Adrenalina (Anafilaxia): 0,01 ml/kg IM no vasto lateral (máx 0,3ml)\n- Diazepam (2ml/10mg): 0,04 ml/kg IV ou retal 0,06 ml/kg\n- Fenitoína (Hidantal): 0,3 ml/kg EV diluído em SF em 30 min" },
-            { titulo: "Hidratação Venosa Pediátrica (Fase Rápida e Manutenção)", cat: "Pediatria", txt: "1ª Fase (Rápida - 1h): SG 25ml/kg + SF 25ml/kg EV (16 gts/kg/min).\n2ª Fase (Lenta - 24h): Lactente = 150ml/kg/dia | Criança = 120ml/kg/dia.\nSolução: SG ¾ + SF ¼ + KCl 19,1% 1ml a cada 100ml. Dividir em 3 etapas de 8h." },
-            { titulo: "Terapia de Reidratação Oral (TRO)", cat: "Pediatria", txt: "Volume: 50 a 100 ml/kg de SRO em 4 a 6 horas.\nCálculo Rápido nas 4h: Peso (kg) x 75 ml." },
-            { titulo: "Entero-Infecção Pediátrica", cat: "Pediatria", txt: "1. Dieta leve e HV\n2. Gentamicina: 7,5 mg/kg/dia em 24h em 100ml SF/SG correr em 60 min\n3. Ondansetron: (Peso/20) ml EV 8/8h SN\n4. Florax SM: 1 flac 12/12h\n5. Dipirona: (Peso/20) ml EV SN" },
-            { titulo: "Crise Asmática na Criança (Hospitalar e Domicílio)", cat: "Peds Urgência", txt: "NBZ: 5ml SF + Berotec 1gt/3kg + Atrovent (dobro Berotec) OU Salbutamol spray 4-8 jatos a cada 20 min por 1h.\nPrednisolona: 1-2 mg/kg dose única VO.\nSe sem VO: Dexametasona Peso/2 em ml IM DU ou Hidrocortisona 5 mg/kg EV 6/6h." },
-            { titulo: "Pneumonias Pediátricas", cat: "Pediatria", txt: "Ambulatorial: Amoxicilina 400/5ml (0,33 ml/kg 12/12h) por 7-10 dias.\nHospitalar: Penicilina Cristalina 50.000 UI/kg 6/6h OU Ceftriaxona 50-100 mg/kg/dia EV 1x/dia." },
-            { titulo: "Cálculos Práticos de Ceftriaxona Pediátrica", cat: "Pediatria", txt: "Via IM: 1g + 1ml ABD + 1ml Lidocaína 2% -> aplicar dose calculada.\nVia IV: 1g + 3,5ml ABD -> fazer 0,18 ml/kg EV em 50-100ml SF em 30 min (1x/dia)." },
-            { titulo: "Crise Convulsiva / Emergência Epiléptica Pediátrica", cat: "Peds Urgência", txt: "1ª Linha: Diazepam 0,1 a 0,3 mg/kg EV lento (máx 3 doses) ou via retal 0,5 mg/kg.\n2ª Linha: Fenitoína (Hidantal) ataque 0,4 ml/kg diluído em SF em 30 min." },
-            { titulo: "Convulsões Febris", cat: "Peds Urgência", txt: "Via aérea pérvia, aspiração e O2. Puncionar acesso.\nDiazepam 0,2 a 0,4 mg/kg EV ou 0,5 mg/kg retal. Antitérmicos e investigar foco." },
-            { titulo: "Otite Média Aguda (OMA)", cat: "Pediatria", txt: "Amoxicilina 90 mg/kg/dia ou 0,33 ml/kg 12/12h por 7 a 10 dias. Analgesia com Dipirona ou Ibuprofeno." },
-            { titulo: "Faringoamigdalites Bacterianas", cat: "Pediatria", txt: "Benzetacil IM DU: 600.000 UI (< 27kg) | 1.200.000 UI (> 27kg) OU Amoxicilina 0,33 ml/kg 12/12h por 10 dias." },
-            { titulo: "Bronquiolite Viral Aguda", cat: "Pediatria", txt: "HV de manutenção, lavagem nasal abundante com Salsep, suspender VO se FR > 60-70 ipm. Salbutamol spray de prova." },
-            { titulo: "Infecções do Trato Urinário (ITU Pediátrica)", cat: "Pediatria", txt: "Hospitalar: Ceftriaxona 50 mg/kg EV 1x/dia ou Gentamicina 7,5 mg/kg/dia EV.\nAmbulatorial: Sulfametoxazol+Trimetoprima (Peso/2 em ml) 12/12h por 7 dias." },
-            { titulo: "Constipação Intestinal e DRGE Pediátrica", cat: "Pediatria", txt: "Constipação: Glicerol supositório ou PEG-LAX 17,5g pó (0,4 g/kg/dia).\nDRGE: Domperidona 0,25 ml/kg/dose VO 3x/dia antes das refeições." },
-            { titulo: "Nasofaringites Agudas (Resfriado Comum e Gripe)", cat: "Pediatria", txt: "Repouso, hidratação vigorosa, lavagem nasal com SF. Dipirona gotas (1 gt/2kg 6/6h) e antialérgico se coriza profusa." },
-            { titulo: "Rinite Alérgica", cat: "Pediatria", txt: "Anti-histamínicos (Fexofenadina ou Desloratadina) + Lavagem nasal contínua com Salsep. Corticoide nasal se > 2 anos." },
-            { titulo: "Aftas (Estomatite Aftosa Pediátrica)", cat: "Pediatria", txt: "Gingilone pomada bucal 3x/dia por 3 dias + Bismu-Jet 1-2 gotas nas lesões." },
-            { titulo: "Anemia Ferropriva e Falta de Apetite", cat: "Pediatria", txt: "Sulfato Ferroso: 3 a 5 mg/kg/dia de ferro elementar por 4 meses. Petivit BC xarope para apetite." },
-            { titulo: "Dermatite Atópica, Assaduras e Impetigo", cat: "Pediatria", txt: "Assaduras: Óxido de zinco / Bepantol.\nImpetigo: Benzetacil IM DU + Mupirocina pomada 2x/dia." },
-            { titulo: "Síndrome Coronariana Aguda - IAM (MONABECCH)", cat: "Cardio Urgência", txt: "Morfina 2-4mg EV SN | O2 se Sat<90% | Isordil 5mg SL | AAS 300mg mastigável | Betabloqueador | Clopidogrel 300mg VO | Estatina 40mg | Enoxaparina 1mg/kg SC 12/12h." },
-            { titulo: "Edema Agudo de Pulmão (EAP)", cat: "Cardio Urgência", txt: "Cabeceira elevada, Furosemida 40-80mg EV bolus, Morfina 2-4mg EV, Nitrato SL/EV se PAS>100, VNI precoce." },
-            { titulo: "Fibrilação Atrial (FA - Sem Instabilidade)", cat: "Cardio Urgência", txt: "Controle de FC: Metoprolol 50mg VO 12/12h ou Amiodarona 150mg EV em 10 min. Anticoagulação com Rivaroxabana." },
-            { titulo: "AVC Isquêmico (AVCI)", cat: "Urgência / Neuro", txt: "Cabeceira 0° primeiras 6h, depois 30°. Tratar PA se > 220x120 mmHg. AAS 100mg + Clopidogrel 75mg + Sinvastatina 40mg." },
-            { titulo: "Crise Convulsiva no Adulto", cat: "Urgência", txt: "Diazepam 10mg EV hemodiluído lento. Refratário: Fenitoína 4 ampolas em 80ml SF EV em 30 min." },
-            { titulo: "Crise Hipertensiva", cat: "Urgência", txt: "Captopril 25mg VO (repetir em 1h SN). Resistente: Clonidina 0,1 a 0,2mg VO. Emergência: Hidralazina 1 amp EV." },
-            { titulo: "Amadurecimento Pulmonar Fetal", cat: "Obstetrícia", txt: "• Betametasona (Diprospan ou Beta Trinta):\n- 2 ampolas a cada 24 horas (total de 4 ampolas em 48h).\n- Idade gestacional: entre a 24ª e a 34ª semana.\n- Dose de reforço/resgate: semanal até a 34ª semana, se persistir risco de prematuridade." },
-            { titulo: "Profilaxia de TVP Pré e Pós-Operatório", cat: "Cirurgia / GO", txt: "• Enoxaparina (Clexane) SC:\n- Fazer 12 horas antes da cirurgia e 12 horas após a cirurgia.\n- Alto Risco: estender por 3 dias (dose de 24 em 24h)." },
-            { titulo: "Vulvovaginites: Vaginose Bacteriana, Candidíase e Tricomoníase", cat: "Ginecologia", txt: "1. Vaginose Bacteriana (Gardnerella vaginalis):\n- Tratar apenas sintomáticas, gestantes, usuárias de DIU e pré-op ginecológico. Não tratar parceiro.\n- 1ª Opção: Metronidazol 500 mg VO 12/12h por 7 dias OU Metronidazol gel vaginal 100 mg/g à noite por 5 dias.\n- Se alergia: Clindamicina 300 mg VO 12/12h por 7 dias.\n- Alternativa: Azitromicina 5 dias + Tericin AT.\n\n2. Candidíase Vaginal:\n- 1ª Opção: Miconazol creme 2% 1 aplicador à noite por 7 noites OU Nistatina 100.000 UI 1 aplicador à noite por 14 noites.\n- 2ª Opção (VO): Fluconazol 150 mg VO dose única OU Itraconazol 100 mg 2 cp VO 12/12h por 1 dia.\n\n3. Tricomoníase Vaginal:\n- Metronidazol 2 g VO dose única OU Metronidazol 500 mg VO 12/12h por 7 dias.\n- OBRIGATÓRIO: Tratar o parceiro sexual também." },
-            { titulo: "Diluição e Infusão de Antibióticos Injetáveis", cat: "Infecto / Hospitalar", txt: "• Ceftriaxona (1g 12/12h ou 2g 24/24h):\n- Reconstituir em 10 mL de água para injeção (ABD) e diluir em 100 mL de SF 0,9%.\n\n• Meropenem (1g 8/8h ou 2g 8/8h em infecções graves):\n- Reconstituir em 10 mL de ABD e diluir em 100 mL de SF 0,9%.\n\n• Clindamicina (Potente anaerobicida e anti-S. aureus):\n- Partes moles não graves: 300 mg a cada 8h.\n- Graves: 600 mg a cada 6h (infusão em 1 hora).\n- Diluição: diluir em 100 mL de SF 0,9%.\n\n• Amicacina (Ampola 500 mg / 2 mL):\n- Dose: 7,5 mg/kg 12/12h OU 15 mg/kg 24/24h OU 500 mg 12/12h.\n- Diluição: 100 a 200 mL de SF 0,9% ou SG 5% (concentração 0,25 a 5 mg/mL)." },
-            { titulo: "Tratamento de Erradicação do H. pylori", cat: "Gastroenterologia", txt: "• Esquema Tríplice (1º ao 14º dia):\n- 2 cápsulas antes do café da manhã e 2 antes do jantar (Claritromicina 500mg + Amoxicilina 1g + Esomeprazol 20mg/40mg) em jejum durante 14 dias.\n\n• Manutenção com Esomeprazol:\n- 15º ao 28º dia (+14 dias): 1 comp rev antes do café da manhã.\n- Ou 15º ao 42º dia (+28 dias se úlcera ativa): 1 comp rev antes do café da manhã." },
-            { titulo: "Prevenção de Pré-Eclâmpsia e Suplementação Pré-Natal", cat: "Obstetrícia", txt: "1. Prevenção de Pré-Eclâmpsia:\n- AAS 100 mg VO: Tomar 1 cp à noite (iniciar entre 12-16 sem até 36 sem).\n- Carbonato de Cálcio 500 mg VO: 3x/dia (às refeições) a partir da 12ª semana até o parto (meta: 1.000 a 1.500 mg de cálcio elementar/dia = 2 cp de Cálcio 1250mg ou OsCal 500).\n\n2. Suplementação Pré-Natal:\n- Ácido Fólico: 400 mcg/dia (iniciar pelo menos 30 dias antes da concepção e manter por toda a gestação).\n- Ferro Elementar: 40 mg/dia por toda a gestação e até 3 meses pós-parto.\n- Ômega 3 (DHA): Suplementação de DHA para gestantes.\n- Se usar polivitamínico (ex: Feminis): atentar que não contém AAS nem Cálcio; associar OsCal 500." },
-            { titulo: "Ferro Endovenoso - Noripurum EV", cat: "Hematologia", txt: "• Noripurum EV:\n- Opção 1: Diluir 1 ampola (5 mL = 100 mg) em 100 mL de SF 0,9%, infundir a 15 gts/min, 1 a 3 vezes por semana.\n- Opção 2: 2 ampolas (10 mL = 200 mg) em 500 mL de SF 0,9% a cada 5 dias." },
-            { titulo: "Analgesia em Alérgico a Dipirona", cat: "Urgência", txt: "• Alternativas para cólicas e dor abdominal/espasmódica:\n- Buscoduo (Butilbrometo de Escopolamina 10 mg + Paracetamol 500 mg) VO.\n- Paracetamol 500-750 mg VO isolado.\n- Tramadol 50-100 mg EV/VO se dor moderada a intensa." },
-            { titulo: "Corticoide Intralesional em Quelóide e Cicatriz Hipertrófica", cat: "Dermatologia / Cirurgia", txt: "• Triancil (Triancinolona hexacetonida 20 mg/mL) ou Beta Trinta:\n- Diluição 1:1: 0,5 mL de corticoide + 0,5 mL de lidocaína 2% sem vasoconstritor (intralesional).\n- Retorno e reaplicação a cada 30-45 dias.\n- Alternativa: Triancil 20 mg/mL puro - 1 mL na incisão a cada 30 dias até regressão da lesão." },
-            { titulo: "Indicações de Tela em Cirurgias de Hérnia", cat: "Cirurgia Geral", txt: "• Hérnia Umbilical: anel herniário maior que 4 cm.\n• Hérnia Incisional: anel herniário maior que 3 a 4 cm.\n• Hérnia Inguinal: TODAS as hérnias inguinais têm indicação de tela (Lichtenstein).\n• Hérnia Epigástrica: apenas se tiver anel grande." },
-            { titulo: "Critérios e Cronograma de Biópsia de Próstata", cat: "Urologia", txt: "• USTR alterado ou PSA > 10 ng/mL: USTR com biópsia (mínimo de 10 a 12 fragmentos).\n• PSA entre 4 e 10 ng/mL: Dosar PSA livre e total:\n  - Relação Livre/Total >= 0,20 (20%): PSA semestral.\n  - Relação Livre/Total < 0,20: USTR com biópsia.\n• PSA > 10 ng/mL e biópsia negativa: Seguimento com PSA semestral e avaliar rebiópsia.\n• Biópsia com PIN de alto grau: Repetir biópsia; se negativa, seguimento semestral com PSA e biópsia.\n• Biópsia de vesícula seminal: se PSA > 15 ng/mL ou lesão suspeita no USTR." },
-            { titulo: "Infecção Urinária (ITU) Resistente", cat: "Urologia / Infecto", txt: "• Esquema Sequencial:\n1. Ceftriaxona (Triaxin) 1 g IM uma vez ao dia por 7 dias.\n2. Profilaxia/Manutenção subsequente: Macrodantina (Nitrofurantoína) 100 mg VO 1x/dia continuamente (à noite)." },
-            { titulo: "Critérios de Transfusão em Anemia Aguda/Grave", cat: "Hematologia / Urgência", txt: "• Parâmetros Laboratoriais:\n- Hematócrito (Hto): 20% a 24%.\n- Hemoglobina (Hb): 5,0 a 7,0 g/dL.\n• Conduta: Concentrado de Hemácias (1 CH eleva em média 1 g/dL de Hb e 3% de Hto em adulto de 70 kg)." },
-            { titulo: "Classificação da Densitometria Óssea (DMO)", cat: "Reumatologia / Ortopedia", txt: "• Critérios da OMS (T-Score):\n- DMO Normal: T-score entre +2,5 e -1,0 DP.\n- Osteopenia: T-score entre -1,0 e -2,5 DP.\n- Osteoporose: T-score ≤ -2,5 DP.\n- Osteoporose Estabelecida/Grave: T-score ≤ -2,5 DP associado a fratura por fragilidade." },
-            { titulo: "Ceratose Actínica / Solar: ATA e Fórmula Tópica", cat: "Dermatologia", txt: "• Ácido Tricloroacético (ATA):\n- Face: 35%.\n- Tórax e Membros: 50%.\n\n• Fórmula Tópica Manipulada:\n- Diclofenaco sódico 3% + Ácido Hialurônico 2,5% em Gel Creme qsp 100 g.\n- Posologia: Aplicar nas lesões 2 vezes ao dia por 90 dias." },
-            { titulo: "Interpretação e Diagnóstico pela Hemoglobina Glicada (HbA1c)", cat: "Endocrinologia / DM", txt: "• Valores de Referência:\n- Normal: menor que 5,7%.\n- Pré-Diabetes: 5,7% a 6,4%.\n- Diabetes Mellitus: a partir de 6,5% (confirmar em segunda amostra se assintomático)." },
-            { titulo: "Insulina Rápida (Esquema de Correção / HGT)", cat: "Urgência", txt: "• 151 - 200 mg/dL: 2 UI SC\n• 201 - 250 mg/dL: 4 UI SC\n• 251 - 300 mg/dL: 6 UI SC\n• 301 - 350 mg/dL: 8 UI SC\n• 351 - 400 mg/dL: 10 UI SC\n• Acima de 400 mg/dL: 12 UI SC" }
-        ];
-
-        // RENDERIZAÇÃO 100% SEGURA POR ÍNDICE
-        function renderizarGuia() {
-            document.getElementById('lista-fichas').innerHTML = fichasTox.map((f, i) => `
-                <div class="card-guia bg-white p-3.5 rounded-2xl border border-gray-200 cursor-pointer hover:border-rose-300 transition-all shadow-sm" onclick="abrirModalPorIndice('ficha', ${i})">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-[9px] font-black text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full">${f.id}</span>
-                        <span class="text-rose-700 bg-rose-50 border border-rose-100 text-[10px] font-bold px-2 py-0.5 rounded-full">Ver ficha ➔</span>
-                    </div>
-                    <h4 class="text-xs font-bold text-gray-900">${f.nome}</h4>
-                    <p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">${f.sin}</p>
-                </div>
-            `).join('');
-
-            document.getElementById('lista-antidotos').innerHTML = antidotosData.map((a, i) => `
-                <div class="card-guia bg-white p-3.5 rounded-2xl border border-gray-200 cursor-pointer hover:border-emerald-300 transition-all shadow-sm" onclick="abrirModalPorIndice('antidoto', ${i})">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-[9px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">${a.ap}</span>
-                        <span class="text-emerald-700 bg-emerald-50 border border-emerald-100 text-[10px] font-bold px-2 py-0.5 rounded-full">Ver conduta ➔</span>
-                    </div>
-                    <h4 class="text-xs font-bold text-gray-900">${a.nome}</h4>
-                    <p class="text-[11px] text-indigo-900 font-semibold">${a.ind}</p>
-                </div>
-            `).join('');
-
-            document.getElementById('lista-peconha').innerHTML = peconhaData.map((p, i) => `
-                <div class="card-guia bg-white p-3.5 rounded-2xl border border-gray-200 cursor-pointer hover:border-amber-300 transition-all shadow-sm" onclick="abrirModalPorIndice('peconha', ${i})">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-[9px] font-black uppercase text-amber-800 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full">${p.tipo}</span>
-                        <span class="text-amber-800 bg-amber-50 border border-amber-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                            Ver conduta ➔
-                        </span>
-                    </div>
-                    <h4 class="text-xs font-bold text-gray-900">${p.nome}</h4>
-                    <p class="text-[11px] text-gray-500 line-clamp-2 mt-1 leading-relaxed">${p.quadro}</p>
-                </div>
-            `).join('');
-
-            document.getElementById('lista-dmhas').innerHTML = dmhasData.map((d, i) => `
-                <div class="card-guia bg-white p-4 rounded-2xl border border-purple-100 shadow-sm cursor-pointer hover:border-purple-300 transition-all" onclick="abrirModalPorIndice('dmhas', ${i})">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-[9px] font-black uppercase text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">${d.cat}</span>
-                        <span class="text-purple-700 bg-purple-50 border border-purple-100 text-[10px] font-bold px-2 py-0.5 rounded-full">Ver diretriz ➔</span>
-                    </div>
-                    <h4 class="text-xs font-bold text-gray-900">${d.titulo}</h4>
-                    <p class="text-[11px] text-gray-500 line-clamp-2 mt-1 whitespace-pre-line">${d.txt}</p>
-                </div>
-            `).join('');
-
-            document.getElementById('lista-presc').innerHTML = prescricoesData.map((p, i) => `
-                <div class="card-guia bg-white p-4 rounded-2xl border border-gray-200 shadow-sm cursor-pointer hover:border-blue-300 transition-all" onclick="abrirModalPorIndice('prescricao', ${i})">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-[9px] font-black uppercase text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">${p.cat}</span>
-                        <span class="text-blue-700 bg-blue-50 border border-blue-100 text-[10px] font-bold px-2 py-0.5 rounded-full">Ver conduta ➔</span>
-                    </div>
-                    <h4 class="text-xs font-bold text-gray-900">${p.titulo}</h4>
-                    <p class="text-[11px] text-gray-500 line-clamp-2 mt-1 whitespace-pre-line">${p.txt}</p>
-                </div>
-            `).join('');
-        }
-
-        function abrirModalPorIndice(categoria, index) {
-            let titulo = "", cat = "", corpo = "";
-
-            if (categoria === 'ficha') {
-                const item = fichasTox[index];
-                titulo = item.nome;
-                cat = item.id;
-                corpo = `🚨 *Sintomas:* ${item.sin}\n\n🔬 *Exames:* ${item.ex}\n\n💉 *Conduta:* ${item.cond}`;
-            } else if (categoria === 'antidoto') {
-                const item = antidotosData[index];
-                titulo = item.nome;
-                cat = "ANTÍDOTO";
-                corpo = `📦 *Apresentação:* ${item.ap}\n\n🎯 *Indicação:* ${item.ind}\n\n💊 *Posologia:* ${item.dose}`;
-            } else if (categoria === 'peconha') {
-                const item = peconhaData[index];
-                titulo = item.nome;
-                cat = item.tipo;
-                corpo = `🔍 *Quadro Clínico:*\n${item.quadro}\n\n📋 *Conduta & Soroterapia:*\n${item.conduta}`;
-            } else if (categoria === 'dmhas') {
-                const item = dmhasData[index];
-                titulo = item.titulo;
-                cat = item.cat;
-                corpo = item.txt;
-            } else if (categoria === 'prescricao') {
-                const item = prescricoesData[index];
-                titulo = item.titulo;
-                cat = item.cat;
-                corpo = item.txt;
-            }
-
-            document.getElementById('modalCategory').innerText = cat;
-            document.getElementById('modalBody').innerHTML = `<h3 class="text-sm font-black text-gray-900">${titulo}</h3><div class="text-gray-700 whitespace-pre-line mt-2">${corpo}</div>`;
-            textoModalAtivo = `📋 *${titulo}* (${cat})\n\n${corpo}`;
-            document.getElementById('btnEnviar').innerText = "📤 Enviar ao Telegram";
-            document.getElementById('detailModal').classList.remove('hidden');
-        }
-
-        function fecharModal() { document.getElementById('detailModal').classList.add('hidden'); }
-
-        function copiarConduta() {
-            if (!textoModalAtivo) return;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(textoModalAtivo).then(() => {
-                    document.getElementById('btnEnviar').innerText = "✅ Copiado!";
-                });
-            }
-        }
-
-        function enviarCondutaChat() {
-            if (!textoModalAtivo) return;
-            let enviado = false;
-            if (tg && typeof tg.sendData === 'function') {
-                try { tg.sendData(textoModalAtivo); enviado = true; } catch(e) {}
-            }
-            copiarConduta();
-            if (!enviado) {
-                const url = `https://t.me/share/url?url=${encodeURIComponent(textoModalAtivo)}`;
-                if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
-                else window.open(url, '_blank');
-            }
-        }
-
-        function filtrarGuia() {
-            const q = document.getElementById('globalSearch').value.toLowerCase();
-            document.querySelectorAll('.card-guia').forEach(c => {
-                c.style.display = c.textContent.toLowerCase().includes(q) ? 'block' : 'none';
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            calcDieta();
-            calcEscalas();
-            calcAlcool();
-            calcPed();
-            calcularInsulinaCompleta();
-            
-            // Abre diretamente nas calculadoras de forma leve e rápida
-            alternarApp('app-calc');
-        });
-    </script>
-</body>
-</html>
+           PUERICULTURA
+
+
+PRIMEIRO ANO
+São 7 consultas, distribuídas da seguinte forma:
+
+Primeira semana
+
+1 mês
+
+2 meses
+
+4 meses
+
+6 meses
+
+9 meses
+
+12 meses
+
+SEGUNDO ANO
+São 2 consultas:
+
+Aos 18 meses
+
+Aos 24 meses
+
+TERCEIRO AO SEXTO ANO
+Consultas devem ser realizadas uma vez ao ano
+
+
+AMAMENTAÇÃO
+
+CONCEITOS
+Amamentação Exclusiva: a criança só ingere leite materno ou leite humano do banco de leite (e no máximo medicamentos)
+
+Amamentação Predominante: a criança ingere leite materno e outros líquidos à base de água (sucos, chás etc)
+
+Amamentação Complementada: a criança ingere leite materno e outros alimentos sólidos/semissólidos
+
+Amamentação Mista (Parcial): a criança ingere leite materno e outros tipos de leite
+
+INDICAÇÃO
+É indicado, de acordo com a OMS (Organização Mundial de Saúde), que a amamentação exclusiva seja feita por 6 meses, e mantida complementada (papas de frutas e papas de sal - cereais/tubérculos, leguminosas, hortaliças, proteína animal) a partir de então pelo menos até os dois anos de vida
+A amamentação materna, portanto, deve ser mantida no mínimo até os 2 anos de idade. A partir daí a manutenção deverá ser feita de comum acordo entre filho e mãe - sem um prazo máximo estipulado
+REGIME DE AMAMENTAÇÃO
+O regime de amamentação deve ser em "livre demanda" - em outras palavras, o bebê mama sempre que desejar (o que se dá em média de 8 - 12 vezes ao dia)
+VANTAGENS DO ALEITAMENTO MATERNO
+Os benefícios do aleitamento materno são infinitos, tanto para a mãe quanto para o bebê. Pontua-se as principais:
+
+👩 PARA A MÃE
+
+1) .Perda de peso: a nutriz perde cerca de 700 kcal/dia ao amamentar
+
+2) .Involução uterina: o estímulo da ocitocina faz com que haja contração da musculatura uterina para sua involução, reduzindo risco de hemorragia pós-parto
+
+3) .Custo e qualidade: o leite materno é gratuito, além disso apresenta a melhor qualidade possível que o bebê pode receber
+
+4) .Prevenção de câncer: reduz o risco de câncer de mama próximo de 5% a cada ano de amamentação, além disso reduz o risco de câncer de ovário
+
+5) .Contracepção: a amamentação apresenta efeito contraceptivo, com eficácia que chega a 98% - nos primeiros 6 meses desde que haja amamentação exclusiva sobre livre demanda
+
+6) .Remineralização óssea: amamentar reduz a chance de fraturas de cabeça de fêmur no período pós-menopausa
+
+7) .Redução de diabetes mellitus tipo 2: a cada ano de amamentação, reduz-se o risco de Diabetes Mellitus tipo 2 em 15%
+
+👶 PARA O BEBÊ
+
+1) .Alimento completo: é um alimento completo em todos os aspectos: nutricional, metabólico, imunológico
+
+2) .Infecções: redução na incidência de qualquer tipo de infecção
+
+3) .Patologias: redução no risco de diversas patologias que podem se iniciar mais tardiamente - asma, doença de Crohn, depressão, alergias, obesidade etc
+
+4) .Cognição/Neurológico: a amamentação aumenta o desempenho cognitivo/neurológico dos recém-nascidos, o que se reflete por toda a vida. Além disso, os ácidos graxos de cadeia longa do leite materno auxiliam na mielinização do corpo e maturação da retina
+
+5) .Cavidade oral: a amamentação promove um adequado desenvolvimento da cavidade oral
+
+6) .Aumento do afeto mãe-filho: interação aumentada
+
+O leite de um prematuro é igual ao de um recém-nascido a termo? 🤔
+
+Na verdade não. O leite de um prematuro tende a se adequar às suas necessidades fisiometabólicas. Assim, tende a ter maior concentração de gorduras, vitamina A/E, proteínas, aminoácidos (cisteína/taurina), sódio, cloro; e uma menor quantidade de vitamina C, lactose, cálcio e fósforo
+COMPOSIÇÃO DO LEITE
+O leite materno é o "melhor alimento do mundo" ao bebê, uma vez que contém todos os nutrientes necessários para ser correto crescimento e desenvolvimento. Alguns pontos devem ser destacados em sua composição:
+
+Proteínas principais: caseína e proteínas do soro (principalmente alfa-lacto albumina)
+
+Carboidrato principal: lactose
+
+Fonte energética principal: gordura (triglicerídeos) - rico em calorias
+
+Vitaminas principais: A, D, E, K. Vitamina C e complexo B
+
+Minerais principais: Fe, Zn, Cu, Ca
+
+Principais fatores de proteção: IgA; IgM; IgG; Lactoferrina (além disso absorve mais ferro); Lisoenzima ("quebra as bactérias"); Lipase; Fator Bífidus; Linfócitos; Macrófagos
+
+LEITE HUMANO VS LEITE DE VACA
+O leite materno humano sem dúvida é muito superior para o desenvolvimento do recém-nascido humano do que qualquer outro tipo de leite. Por exemplo, o leite de cabra possui carência de folato levando a processos carenciais. Não só o de cabra, mas o leite de vaca - tradicionalmente usado para substituir o leite materno - apresenta propriedades distintas do leite humano, com destaque para alguns pontos:
+
+Calorias: O leite humano apresenta um pouco mais de calorias do que o leite de vaca (75 kcal/100ml x 66 kcal/100 ml) - dando mais energia ao bebê
+
+Água: O leite humano apresenta 88% do seu volume em água, não necessitando de oferta extra de água para o recém-nascido - o que não acontece com o leite de vaca
+
+Gorduras: O leite humano possui mais gordura (4,5 g/100 ml x 3,8 g/100 ml); mas não só isso: o leite humano possui qualidade de gordura: com ácidos graxos de cadeia longa (PUFA), ácido linoleico e colesterol; ao passo que o leite de vaca possui deficiências nessas gorduras ideais com excesso de gorduras saturadas
+
+Proteínas: O leite de vaca possui 3 vezes mais proteínas (1,1 g/100 ml x 3,3 g/100 ml), mas isso não quer dizer que seja bom: a proteína em excesso altera a função renal. Isso sem contar que as proteínas são quantitativa/qualitativamente distintas: o leite humano tem predomínio de alfa-lactoalbumina e uma menor porcentagem de caseína, sendo mais fácil de ser digerida; ao passo que o leite de vaca possui beta-lactoglobulina alergênica e uma maior porcentagem de caseína, sendo mais difícil de ser digerida.
+
+Ferro: A quantidade é igual (0,5 mg/L); no entanto, o leite materno permite uma absorção maior, uma vez que vem junto a enzima "lactoferrina" - resultando em uma maior biodisponibilidade.
+
+Cálcio: O leite de vaca tem mais (340 mEq/L x 1170 mEq/L), porém o leite materno possui componentes que faz com que essa menor quantidade seja mais absorvida em comparação ao leite de vaca.
+
+Sódio, Potássio, Fósforo, Magnésio: O leite de vaca tem mais esses elementos - o que pode levar a uma sobrecarga renal no bebê
+
+Fatores de proteção: os fatores de proteção do leite de vaca são inativos. Já o leite humano apresenta diversos: IgA; IgM; IgG; Lactoferrina (efeito bacteriostático e absorve mais ferro); Lisoenzima (“quebra as bactérias”); Lipase; Fator Bífidus (estimula flora saprófita/efeito bacteriostático); Linfócitos; Macrófagos
+
+Bactérias: Ausência de bactérias no leite humano, e presença no leite de vaca
+
+TÉCNICA DE AMAMENTAÇÃO
+Para que haja uma amamentação adequada, deve-se orientar à nutriz uma técnica adequada que consiste em uma posição e pega adequada:
+
+obs: a mama que deve ser iniciada é a última da mamada anterior
+
+a) Posição: a criança deve estar toda apoiada, levada até a mama, a cabeça deve estar no mesmo eixo que o tronco, e deve ter contato “barriga-barriga” com a mãe. Pontualmente:
+
+.A face do bebê deve estar de fronte ao seio materno, com o nariz na altura do mamilo e livres
+.A cabeça do bebê deverá estar no mesmo eixo que o tronco
+.O pescoço do bebê deverá estar ligeiramente estendido
+.O corpo do bebê deverá estar firmemente apoiado
+.Deverá existir um contato entre o corpo materno e do bebê - "barriga com barriga"
+Há variações corretas na posição que incluem: sentada, deitada, invertida, cavalinho etc
+
+AMAMENTAR
+
+b) Pega: a criança deverá manter um padrão adequado ao tocar o mamilo. Pontualmente:
+
+.Os lábios inferiores devem estar evertidos
+.O queixo deve tocar a mama
+.A boca deve estar bem aberta abrangendo quase toda a aréola - a aréola deve estar mais visível na parte superior que na inferior
+.A língua do bebê deve envolver o bico do peito - fazendo movimentos de ordenha
+.A deglutição deve ser visível e/ou audível além da visualização de uma bochecha redonda (“cheia”)
+AMAMENTACAO
+
+Uma técnica de amamentação adequada evidencia uma deglutição audível/visível. Sinais que refletem uma técnica incorreta incluem: dor, barulhos inadequados, bochechas que não enchem durante a mamada etc
+
+ORDENHA E ARMAZENAMENTO DO LEITE
+No caso em que as mães se separem dos filhos (motivos de trabalho, estudo etc) deverá ser coletado o leite para que outras pessoas deem ao lactente. São três os passos principais:
+
+1º Passo - Ordenha: A mãe deverá lavar bem as mãos, usar máscara ou evitar falar durante o procedimento. Realiza-se massagem delicada na mama em direção à aréola. Um frasco de vidro com boca larga e tampa plástica deverá ser esterilizado mediante fervura por 20 minutos. A mãe em posição confortável então posiciona o polegar acima do mamilo e indicador abaixo - formado da "mão em C" - ejetando o leite dentro do frasco por 20-30 minutos
+
+2º Passo - Armazenamento: o leite então deverá ser armazenado no frasco de vidro esterilizado, adequadamente identificado com a data da coleta, podendo ser dado ao bebê dependendo do local de armazenamento:
+
+Geladeira: guardar por até 12 horas
+Freezer: guardar por até 15 dias; se for pasteurizado pode guardar até por 6 meses
+Obs: O leite humano pasteurizado não tem o mesmo valor biológico que o leite cru.
+3º Passo - Dar ao bebê: o leite deverá ser descongelado na geladeira e aquecido em banho maria. Após o descongelamento, manter na geladeira por até 12 horas - após isso, descartar
+
+O leite então deverá ser oferecido ao bebê após uma leve agitação (homogenização da gordura) por meio de um copinho ou colher.
+VANTAGENS DO ALEITAMENTO MATERNO
+Os benefícios do aleitamento materno são infinitos, tanto para a mãe quanto para o bebê. Pontua-se as principais:
+
+👩 PARA A MÃE
+
+1) .Perda de peso: a nutriz perde cerca de 700 kcal/dia ao amamentar
+
+2) .Involução uterina: o estímulo da ocitocina faz com que haja contração da musculatura uterina para sua involução, reduzindo risco de hemorragia pós-parto
+
+3) .Custo e qualidade: o leite materno é gratuito, além disso apresenta a melhor qualidade possível que o bebê pode receber
+
+4) .Prevenção de câncer: reduz o risco de câncer de mama próximo de 5% a cada ano de amamentação, além disso reduz o risco de câncer de ovário
+
+5) .Contracepção: a amamentação apresenta efeito contraceptivo, com eficácia que chega a 98% - nos primeiros 6 meses desde que haja amamentação exclusiva sobre livre demanda
+
+6) .Remineralização óssea: amamentar reduz a chance de fraturas de cabeça de fêmur no período pós-menopausa
+
+7) .Redução de diabetes mellitus tipo 2: a cada ano de amamentação, reduz-se o risco de Diabetes Mellitus tipo 2 em 15%
+
+👶 PARA O BEBÊ
+
+1) .Alimento completo: é um alimento completo em todos os aspectos: nutricional, metabólico, imunológico
+
+2) .Infecções: redução na incidência de qualquer tipo de infecção
+
+3) .Patologias: redução no risco de diversas patologias que podem se iniciar mais tardiamente - asma, doença de Crohn, depressão, alergias, obesidade etc
+
+4) .Cognição/Neurológico: a amamentação aumenta o desempenho cognitivo/neurológico dos recém-nascidos, o que se reflete por toda a vida. Além disso, os ácidos graxos de cadeia longa do leite materno auxiliam na mielinização do corpo e maturação da retina
+
+5) .Cavidade oral: a amamentação promove um adequado desenvolvimento da cavidade oral
+
+6) .Aumento do afeto mãe-filho: interação aumentada
+
+ASPECTOS LEGAIS
+Existe um conjunto de medidas legais que visam a adequada amamentação e cuidado ao recém-nascido. Inclui:
+
+Constituição de 1988: licença maternidade de 120 dias (4 meses) para todas as puérperas. (Para pais é de 5 dias)
+
+Lei Federal 11.770/2008 ("Empresa Cidadã"): extensão para 6 meses da licença maternidade. Para as empresas públicas é obrigatório; para as empresas privadas que aceitarem, há um ganho em incentivos fiscais (A nutriz deverá requerer o benefício em até 1 mês após o parto)
+CLT - Consolidação das Leis Trabalhistas: determina alguns pontos importantes:
+
+Toda empresa com mais de 30 funcionários deverá ter um espaço reservado para que as nutrizes amamentem seus bebês durante o período de amamentação - nesses locais deverá existir um berçário, cozinha dietética, instalações sanitárias, sala de amamentação
+
+A funcionária que está amamentando (dentro dos 6 meses) tem adicionais dois intervalos de 30 minutos por dia para a amamentação
+
+A gestante não pode ser demitida desde a confirmação da gestação até 5 meses após o parto, salvo caso de justa causa
+
+CONTRAINDICAÇÕES À AMAMENTAÇÃO
+Algumas situações do recém-nascido e/ou da mãe contraindicam o aleitamento materno, nesses casos deverá ser utilizada as fórmulas infantis:
+
+👶PARA O BEBÊ
+
+1) .Galactosemia: deficiência de enzimas envolvidas na digestão da galactose. O recém-nascido não poderá ingerir nenhum leite, com exceção do leite de soja.
+
+2) .Fenilcetonúria: deficiência na enzima da fenilalanina. A contraindicação é relativa: níveis sanguíneos do recém-nascido acima de 17 mg/dl contraindicam, mas usualmente se espera os níveis reduzirem para possibilitar a amamentação, interrompendo e reiniciando de acordo com os níveis séricos
+
+👩PARA A MÃE
+
+1) .HIV positiva: há transmissão. A ACOG considera a amamentação possível se a mãe utiliza TARV, apresenta carga viral sustentadamente indetectável, receberam aconselhamento adequado e mantém supressão viral (<50 cópias/mL), mas reforça que há um risco de transmissão menor de 1%. Para o Ministério da Saúde permanece como contraindicação absoluta.
+
+2) .HTLV 1 E 2 positiva: há transmissão
+
+3) .Psicose puerperal: durante o surto proibido amamentar
+
+4) .Situações relativas :
+
+4.1 Herpes simples: apenas se houver lesão na mama
+4.2 Citomegalovirose aguda: apenas se o recém-nascido for prematuro com menos de 30 semanas - nesses casos, pasteurizar o leite antes
+4.3 Doença de Chagas: apenas se doença ativa
+4.4 Varicela: adquirida 5 dias antes, ou até 2 dias após o parto
+4.5 Tuberculose: a mãe deverá usar máscara nas 3 primeiras semanas do tratamento, além disso inicia-se a quimioprofilaxia para o recém-nascido: isoniazida 10mg/kg/dia pelo período de 3 meses - após isso, faz a BCG
+4.6 Hanseníase: forma virchowiana, desde que não tratada até o mínimo período para evitar o contágio (3 semanas com rifampicina; 3 meses com dapsona ou clofazimida)
+5) .Medicamentos: as principais drogas utilizadas pela mãe que contraindicam a amamentação são:
+
+Amiodarona - risco de hipotireoidismo no bebê
+Antineoplásicos (ciclofosfamina, metrotexate) - risco de supressão de medula no bebê
+Substâncias radioativas (gálio, iodo, tecnécio)
+Sais de ouro - risco de rash e reação idiossincrática no bebê
+Bromocriptina - inibe lactação
+Hormônios (exceção mini-pílula) - inibe lactação, características femininas ao bebê
+Isotretinoína - risco de hepatopatia, náuseas, vômito no bebê
+Fenindiona - risco de sangramento no bebê
+drogas de abuso: maconha, cocaína, heroína, anfetaminas
+
+Alimentação Complementar na Infância
+Segundo o Ministério da Saúde são 12 os passos fundamentais para que haja uma alimentação complementar ao lactente correta:
+
+1) .Amamentar até 2 anos ou mais, oferecendo somente o leite materno até os 6 meses
+
+O leite materno é muito importante para a criança até os 2 anos, sendo o único alimento que a criança deve receber até os 6 meses, sem necessidade de água, chá ou qualquer outro alimento. Começar a amamentação logo após o nascimento, na primeira hora de vida, traz benefícios para a criança e para a mãe. A composição do leite materno é única, personalizada e atende às necessidades nutricionais da criança conforme sua idade, protege contra doenças na infância e na vida adulta, ajuda o desenvolvimento do cérebro e fortalece o vínculo entre mãe e criança. A rede de apoio é importante para o sucesso da amamentação.
+2) .Oferecer alimentos in natura ou minimamente processados, além do leite materno, a partir dos 6 meses
+
+Nessa fase, outros alimentos saudáveis devem ser apresentados para o bebê e fazer parte de suas refeições. Para estimular o paladar da criança, os responsáveis devem apresentar a maior diversidade possível de alimentos in natura ou minimamente processados e de diferentes grupos, como feijões, cereais, raízes e tubérculos, frutas, legumes e verduras, além de carnes.
+3) .Oferecer água própria para o consumo em vez de sucos, refrigerantes e outras bebidas açucaradas
+
+Após os 6 meses de vida, o bebê passa a consumir água, que deve ser ofertada no intervalo entre as refeições. Em locais onde não há tratamento de água, ela deve ser filtrada e tratada com solução de hipoclorito de sódio a 2,5%, misturando 2 gotas da solução para cada 1 litro de água e aguardando 30 minutos (ou conforme as orientações da embalagem) para ser consumida num período de 24 horas. Na falta do hipoclorito, deve-se ferver a água por 5 minutos antes de beber. Espere esfriar antes de ofertar à criança.
+4) .Oferecer comida amassada quando a criança começar a comer outros alimentos além do leite materno
+
+A oferta de alimentos amassados e picados (no caso de carnes, por exemplo) faz parte do processo de introdução alimentar e permite que as crianças se familiarizem com a consistência de cada comida até que aprenda a mastigar. Esse é um aprendizado progressivo e passa por algumas etapas, como alimentos amassados, picados em pedaços pequenos, ralados ou desfiados.
+5) .Não oferecer preparações ou produtos que contenham açúcar até os 2 anos de idade
+
+O consumo de açúcar não é necessário e causa danos à saúde, como cáries, obesidade na infância e na vida adulta pode levar a doenças crônicas, como diabetes. Além disso, acostumar a criança desde cedo ao sabor excessivamente doce pode causar dificuldade de aceitação dos alimentos in natura ou minimamente processados. Não inclua mel, açúcar de qualquer tipo (mascavo, demerara, cristal ou refinado “branco”, rapadura, melaço) na alimentação da criança, nem ofereça preparações ou produtos prontos que contenham algum desses ingredientes, como biscoitos, bolos e iogurtes. Os adoçantes (em pó ou líquido) também não devem ser usados na alimentação até os 2 anos, pois são alimentos ultraprocessados e contêm substâncias químicas não adequadas a essa fase da vida.
+6) .Não oferecer alimentos ultraprocessados para a criança
+
+Esses alimentos, geralmente, são pobres em nutrientes e podem conter muito sal, gordura e açúcar, além de aditivos, como adoçantes, corantes e conservantes. O consumo faz mal à saúde. Os alimentos ultraprocessados são aqueles produzidos de forma completamente industrial, a partir de diversas etapas de processamento e que levam em sua composição muitos ingredientes de uso industrial exclusivo, contendo pouca ou nenhuma quantidade de alimentos in natura.
+7) .Cozinhar a mesma comida para a criança e para a família
+
+Os alimentos oferecidos podem ser os mesmos, sem excesso de gordura, sal e condimentos e adaptados na consistência sempre que necessário. Isso estimula o bebê no processo de introdução alimentar e ainda promove alimentação saudável para a família toda.
+8) .Zelar para que a hora da alimentação da criança seja um momento de experiências positivas, aprendizado e afeto
+
+É fundamental que toda família valorize o momento da alimentação. Comer juntos ajuda a criança a se interessar em experimentar novos alimentos e torna as refeições mais prazerosas. O ambiente acolhedor, tranquilo e a boa relação entre a criança e as pessoas que cuidam dela podem influenciar de forma positiva.
+9) .Prestar atenção aos sinais de fome e saciedade da criança e conversar com ela durante a refeição
+
+Os sinais de fome e de saciedade variam de acordo com a idade e ao perceber esses sinais, o responsável deve responder de forma ativa, carinhosa e respeitosa, oferecendo o alimento quando a criança sentir fome e parando quando ela demonstrar estar satisfeita.
+10) .Cuidar da higiene em todas as etapas da alimentação da criança e da família
+
+Cuidar da alimentação é uma tarefa coletiva. A atenção durante o preparo dos alimentos e a boa higiene previnem a contaminação e o risco de doenças. É importante lavar as mãos sempre que for cozinhar e alimentar a criança, depois de usar o banheiro, trocar fralda ou realizar tarefas no cuidado da casa. Também é fundamental sempre lavar as mãos da criança.
+11) .Oferecer alimentação adequada e saudável também fora de casa
+
+Refeições preparadas com alimentos in natura e minimamente processados, em porções individuais, podem ser levadas para comer fora, como em passeios, festas e consultas de saúde. Isso evita a oferta de alimentos inadequados.
+12) .Proteger a criança da publicidade de alimentos
+
+Esse é um desafio enfrentado pelos responsáveis quando o assunto é alimentação saudável. Isso porque os ultraprocessados estão presentes nos comerciais de televisão, outdoors, cartazes, revistas, jogos eletrônicos e redes sociais, chamando a atenção. Ao levar a criança para supermercados, saia de casa com ela alimentada ou leve um lanche saudável. Menores de 2 anos não devem utilizar televisão, celular, computador ou tablet. Hábitos simples e bons exemplos tornam o processo de introdução alimentar divertido e educativo tanto para a criança quanto para a família.
+O QUE SÃO PAPAS?
+Papas são alimentos amassados com consistência de purê grosso. Podem ser de frutas, ou salgadas (de sal). Devem ser dadas em pequenas porções. As papas salgadas devem incluir:
+
+a) Cereais e tubérculos
+
+Arroz, aipim, batata-doce, macarrão, batata, cará, farinhas, batata-baroa e inhame
+b) Leguminosas
+
+Feijões, lentilha, ervilha seca, soja e grão-de-bico.
+c) Hortaliças e frutas
+
+Folhas verdes, laranja, abóbora, banana, beterraba, abacate, quiabo, mamão, cenoura, melancia, tomate e manga.
+d) Proteínas animal
+
+Frango, codorna, peixe pato, boi, ovo e vísceras (miúdos).
+Algumas sugestões para combinação de papas salgadas incluem:
+
+Batata + couve + peixe
+Farinha de mandioca + folhas verdes + carne moída
+Aipim/Mandioca + quiabo + frango desfiado
+Macarrão + Vagem + (Picadinha ou frango desfiado)
+Arroz + feijão amassado + cenoura
+Batata Doce + abobrinha + miúdos de frango
+Arroz + lentilha + tomate
+Batata + abóbora + bredo + fígado moído
+Fubá + folha verde picadinha + carne moída
+Inhame + beterraba + fígado de boi
+ESQUEMA IDEAL - ATÉ O 6º MÊS
+Aleitamento materno exclusivo
+ESQUEMA IDEAL - ENTRE O 6º-7º MÊS
+Leite materno à demanda + Fruta (raspada / amassada) + Refeição almoço (amassada) + Fruta
+Recomenda-se que a fruta seja oferecida in natura, ao invés de sucos que possuem baixa densidade energética.
+A refeição deve conter um alimento de cada grupo (cereais ou tubérculos + leguminosas e verduras + carne ou ovos).
+ESQUEMA IDEAL - ENTRE O 7º-12º MÊS
+Leite materno à demanda + Fruta (raspada / amassada) + Refeição almoço (amassada / em pedaços pequenos e bem cozidos) + Fruta (raspada / amassada / em pedaços bem pequenos) + Refeição jantar (amassada / em pedaços pequenos e bem cozidos).
+Recomenda-se que a fruta seja oferecida in natura, ao invés de sucos que possuem baixa densidade energética.
+A refeição deve conter um alimento de cada grupo (cereais ou tubérculos + leguminosas e verduras + carne ou ovos).
+ESQUEMA IDEAL - A PARTIR DO 12º MÊS
+Leite materno à demanda + Fruta ou Cereal ou Tubérculo + Fruta (em pedaços) + Refeição da família (almoço) + Fruta (em pedaços) + Refeição da família (jantar)
+Recomenda-se que a fruta seja oferecida in natura, ao invés de sucos que possuem baixa densidade energética.
+A refeição deve conter um alimento de cada grupo (cereais ou tubérculos + leguminosas e verduras + carne ou ovos).
+
+Desenvolvimento Neuropsicomotor
+
+
+REGRAS BÁSICAS
+O desenvolvimento tem aspecto sequencial e previsível:
+
+A mielinização ocorre em sentido crânio -> caudal para o desenvolvimento motor grosseiro e cubital -> radial para o desenvolvimento motor fino.
+Desenv
+Clique na imagem para ampliar
+
+Divide-se as características neuropsíquicas de acordo com as idades. Não há datas específicas para achados, e sim períodos. O seu atraso ou ausência deve levar à suspeita de patologias no Sistema Nervoso e musculoesquelético.
+
+DE 0-28 DIAS DE VIDA
+1) .Adaptativo: capacidade de fixar a visão
+
+2) .Social: prefere fixar a visão em faces humanas
+
+3) .Linguagem: sem linguagem - há apenas choro
+
+4) .Motor: Postura tônico-cervical - os membros são fletido. Postura semifletida: A cabeça tem a capacidade de virar de um lado para outro e durante a suspensão ventral a cabeça pende
+
+1º MÊS DE VIDA
+1) .Adaptativo: capacidade de seguir (com olhos) objetos até um campo de visão de 90º
+
+2) .Social: sorri espontaneamente
+
+3) .Linguagem: sem linguagem - há apenas choro
+
+4) .Motor: As pernas estão mais estendidas. Tem a capacidade de erguer o queixo quando em posição prona.
+
+Manutenção da postura tônico-cervical
+2º MÊS DE VIDA
+1) .Adaptativo: capacidade de seguir (com olhos) objetos até um campo de visão de 180º
+
+2) .Social: sorri socialmente (a partir de uma brincadeira por exemplo)
+
+3) .Linguagem: começa a vocalizar
+
+4) .Motor: Tem a capacidade de erguer a cabeça quando em posição prona.
+
+Manutenção da postura tônico-cervical
+3º MÊS DE VIDA
+1) .Adaptativo: capacidade de estender a mão para pegar objetos
+
+2) .Social: emite sons quando estimulada socialmente
+
+3) .Linguagem: sons guturais (consonantais - "grrr")
+
+4) .Motor: Tem a capacidade de erguer a cabeça e o tronco quando em posição prona; além disso, durante a suspensão ventral a cabeça não pende
+
+Manutenção da postura tônico-cervical
+4º MÊS DE VIDA
+1) .Adaptativo: capacidade de pegar os objetos com a parte cubital da mão
+
+2) .Social: capacidade de rir alto
+
+3) .Linguagem: sons guturais (consonantais - "grrr")
+
+4) .Motor: Sustenta a cabeça - que fica centralizada; as mãos estão na linha média.
+
+6-7º MÊS DE VIDA
+1) .Adaptativo: capacidade de pegar os objetos com a parte radial da mão, e transferir o objeto entre as mãos
+
+2) .Social: preferência de ficar com a mãe, e gosta do espelho
+
+3) .Linguagem: polissílabos vogais ("dá", "lá", "bá") - lalação
+
+4) .Motor: Rola, vira, senta sem apoio por um momento e logo com apoio.
+
+9-10º MÊS DE VIDA
+1) .Adaptativo: capacidade de segurar os objetos com movimentos de pinça (indicador e polegar); e solta os objetos se retirados da mão
+
+2) .Social: estranha, brinca de "cadê" (sentido de permanência), bate palmas, dá tchau, acena, responde quando é chamado
+
+3) .Linguagem: polissílabos vogais mais determinados - "mama", "papa"
+
+4) .Motor: Senta sem apoio e engatinha (engatinhar é facultativo - algumas crianças não engatinham)
+
+12º MÊS DE VIDA
+1) .Adaptativo: capacidade de apanhar os objetos com movimentos de pinça (indicador e polegar); e entrega objetos se for solicitado
+
+2) .Social: maior interação: brinca, ajuda a se vestir
+
+3) .Linguagem: fala ao menos 3 palavras com sentido (mesmo que polissílabos vogais mais determinados - "mama", "papa" etc)
+
+4) .Motor: Capacidade de andar com apoio (p.ex mãos dadas), e consegue levantar sozinha
+
+15º MÊS DE VIDA
+1) .Adaptativo: capacidade de fazer uma torre com 3 cubos; faz linha torta com giz
+
+2) .Social: aponta para coisas; abraça os pais
+
+3) .Linguagem: nomeia objetos
+
+4) .Motor: Capacidade de andar sem apoio
+
+24º MÊS DE VIDA
+1) .Adaptativo: capacidade de fazer uma torre com 7 cubos; faz linha reta com giz
+
+2) .Social: segura talher e come sozinha, e escuta histórias prestando atenção
+
+3) .Linguagem: fala frase completa
+
+4) .Motor: Corre
+
+36º MÊS DE VIDA
+1) .Adaptativo: capacidade de fazer uma torre com 10 cubos, sabe desenhar tanto uma cruz quando um círculo
+
+2) .Social: brinca com outras crianças
+
+3) .Linguagem: Sabe se referir a si próprio ("eu"), sabe próprio nome, idade e sexo; além disso conta até 3
+
+4) .Motor: Sabe andar de triciclo
+
+48º MÊS DE VIDA
+1) .Adaptativo: sabe desenhar um quadrado e uma figura com aspecto humano; já sabe usar tesoura
+
+2) .Social: socializa com outras crianças; sabe pedir para ir ao banheiro
+
+3) .Linguagem: Sabe contar história; conta até 4
+
+4) .Motor: Sabe pular com um pé
+
+60º MÊS DE VIDA
+1) .Adaptativo: sabe desenhar um triângulo
+
+2) .Social: sabe se vestir e tirar a roupa; curiosidade com significado das palavras
+
+3) .Linguagem: Sabe 4 cores; conta até 10
+
+4) .Motor: Sabe pular com os dois pés
+
+
+PREPARAÇÃO DAS FÓRMULAS
+A preparação das diversas fórmulas disponíveis no mercado variam conforme a marca específica. De forma geral:
+
+Para a preparação adequada, a proporção é de: 1 medida a cada 30 ml de água fervida
+Deve-se manter uma higiene ímpar: mãos adequadamente lavadas, água potável fervida por 5 minutos, assim como ferver os utensílios utilizados.
+
+ESQUEMAS DE ADMINISTRAÇÃO
+O volume e a quantidade a ser dada variam conforme a idade do bebê. De forma geral:
+
+Nascimento até 30 dias: 60 - 120 ml - ministrar 6 - 8 vezes ao dia
+
+1 - 2 meses de idade: 120 - 150 ml - ministrar 6 - 8 vezes ao dia
+
+2 - 3 meses de idade: 150 - 180 ml - ministrar 5 - 6 vezes ao dia
+
+3 - 6 meses de idade: 180 - 200 ml - ministrar 5 - 6 vezes ao dia
+
+⚠️ Observação: Apesar de algumas práticas incluírem sucos, a Sociedade Brasileira de Pediatria não recomenda oferecer suco de frutas antes de 1 ano, pois não traz benefícios nutricionais e pode aumentar o risco de cáries e excesso de peso.
+> 6 meses: 180 - 200 ml - ministrar 2 - 3 vezes ao dia, em complemento à introdução alimentar
+
+Obs 1: Segundo a Sociedade Brasileira de Pediatria, suco de frutas não oferece benefícios nutricionais para crianças menores de um ano e não deve ser incluído na dieta.
+
+Obs 2: A oferta de água deve ser iniciada a partir da introdução alimentar ou para crianças em uso de fórmula infantil.
+
+FÓRMULAS DE PARTIDA
+São as fórmulas que devem ser usadas até os 6 meses de idade em lactentes saudáveis; existem diversas marcas, que incluem:
+
+Nan1®, Aptamil1®, Nestogeno1®, Milupa1®, Similac1®
+FÓRMULAS DE SEGUIMENTO
+São as fórmulas que devem ser usadas a partir dos 7 meses de idade em lactentes saudáveis - e mantidas até 12 meses ou até os 36 meses de vida; apresentam maior teor de ferro. Existem diversas marcas, que incluem:
+
+Nan2®, Aptamil2®, Nestogeno2®, Milupa2®, Similac2®
+FÓRMULAS ESPECIAIS: PARA PREMATUROS
+São as fórmulas utilizadas para prematuros. Apresentam composição especial para essa fase da vida, com maior densidade calórica e maior aporte de fósforo e de ferro. Existem diversas marcas, que incluem:
+
+Pré-Nan®, Aptamil pré®, Enfamil Pré®,
+FÓRMULAS ESPECIAIS: ANTIREGURGITAÇÃO
+São fórmulas utilizadas para bebês com sintomas excessivos de refluxo/regurgitação. São mais espessas. Existem diversas marcas, que incluem:
+
+Nan AR®, Aptamil AR®, Enfamil AR®
+FÓRMULAS ESPECIAIS: PARCIALMENTE HIDROLISADAS
+Conhecidas ainda como "hipoalergênicas". São fórmulas produzidas a partir de proteína de soro de leite ou soja parcialmente hidrolisada, o que confere uma característica hipoalergênica ao leite. Recomendado para crianças com histórico familiar de alergia ao leite de vaca. Existem diversas marcas, que incluem:
+
+Com lactose: Nan AH®, Aptamil HA®
+Sem lactose: Similac Senstive®, Pepatamen Junior®
+FÓRMULAS ESPECIAIS: EXTENSAMENTE HIDROLISADAS
+São fórmulas produzidas a partir de proteína de soro de leite ou soja extensamente hidrolisada. É a primeira opção para alérgicos à proteína do leite de vaca. Existem diversas marcas, que incluem:
+
+Alergomed®, Alfaré®, Aptamil pepti®, Altherá®
+FÓRMULAS ESPECIAIS: AMINOÁCIDOS
+São fórmulas produzidas a partir de proteína de soro de leite ou soja totalmente hidrolisadas: existem apenas aminoácidos. Dessa maneira, não causam alergias em 100% das situações. Existem diversas marcas, que incluem:
+
+Até 1 ano: AMIX®, Neocate LCP®, Aminomed®
+Mais de 1 ano: Puramino®, Neocate advance®
+FÓRMULAS ESPECIAIS: A BASE DE SOJA
+São fórmulas produzidas a partir de proteína de soja. Se enquadram dentro de outras fórmulas já discutidas acima. Utilizadas para os casos em que há intolerância à lactose, alergia à proteína do leite de vaca ou mesmo galactosemia. A sua utilização só é permitida após 6 meses de idade. Existem diversas marcas, que incluem:
+
+NanSoy®, Aptamil soja®, Enfamil soja®
+FÓRMULAS ESPECIAIS: SEM LACTOSE
+São fórmulas produzidas a partir de fórmulas lácteas . Se enquadram dentro de outras fórmulas já discutidas acima. Utilizadas para os casos em que há intolerância à lactose, porém não para situações de galactosemia (ausência de enzima que metaboliza a galactose) - uma vez que podem existir resquícios de lactose. Existem diversas marcas, que incluem:
+
+Pepatamen Junior®, NanSL®
+
+Fisiopatologicamente ocorrem diversas alterações no organismo da criança acometida:
+
+Alterações Hormonais e Metabólicas: estado de catabolismo - há redução de glicogênio (aumento de glicólise); redução de proteínas e redução de gorduras (lipólise). Há uma tendência ao estímulo da neoglicogênese - produção de glicose a partir de ácidos graxos e aminoácidos - porém é insuficiente. Na tentativa de equilíbrio há uma redução da insulina e aumento de glucagon e adrenalina
+
+Alterações Hidroeletrolíticas: A bomba sódio-potássio acaba comprometida pela redução de ATP. Assim, há uma depleção de sódio extracelular e comprometimento global de potássio. A redução do potencial do sódio culmina com alcalose extracelular e acidose intracelular. Há ainda lise celular pelo aumento de cálcio intracelular, e redução sistêmica de magnésio
+
+Alterações imunológicas: redução nos mecanismos de imunidade inespecíficas, humoral e celular (principalmente)
+
+Sistemicamente, a redução calórica e de micro/macronutrientes é refletida pelo acometimento de compartimentos específicos, com destaque para:
+
+Comprometimento neurológico: restrição à formação de novas sinapses, mielinização, divisão celular e síntese de neurotransmissores
+
+Comprometimento cardíaco: redução de débito cardíaco por déficit em miócito e hipovolemia
+
+Comprometimento renal: redução de filtração glomerular por redução de débito cardíaco e hipovolemia
+
+Comprometimento gastrointestinal: disabsorção por redução em secreções gástricas, pancreáticas, biliares e redução na superfície de absorção intestinal - cursando com diarreia
+
+SINAIS E SINTOMAS
+O comprometimento inicial da desnutrição é refletido clinicamente em déficit ponderal. Quando se arrasta, tornando-se um quadro crônico, a estatura também acaba se comprometendo. Podemos dividir os achados em 3 grandes grupos:
+
+1) .Universais: presentes em todos os quadros de desnutrição:
+
+Irritabilidade, Depressão Mental, Diminuição de atividade, Perversão de apetite (pica)
+
+Hipotrofia muscular
+
+Redução de ganho ponderal, com evolução para comprometimento de crescimento linear
+
+2) .Circunstanciais: variam de acordo com a gravidade e o tipo de déficit nutricional:
+
+Digestivo: disabsorção, diarreia
+Cardiovascular: hipovolemia, redução de débito
+Pulmonar: redução da capacidade pulmonar
+Renal: redução de filtração glomerular
+Hematológico: anemia
+Metabólico: hipotermia
+Nervoso: comprometimento neurológico
+Imune: comprometimento de defesas
+3) .Agregadas: quadros clínicos secundários ao estado de desnutrição: infecção, desidratação, distúrbios hidroeletrolíticos e metabólicos
+
+DESNUTRIÇÃO GRAVE: MARASMO E KWASHIORKOR
+Em quadros de desnutrição grave, a clínica pode se polarizar para 3 formas clínicas principais:
+
+1) .KWASHIORKOR: (vide imagem 1) .esse nome vem de um dialeto do país de Gana, e significa: "Doença do primeiro filho quando nasce o segundo" - uma vez que é tipicamente ocorre em crianças que são desmamadas abruptamente (por causa de uma nova gravidez) e começam a receber uma dieta com quantidades calóricas suficientes (carboidratos: farinha, banana açúcar etc), porém pobres em proteínas. Assim:
+
+Há uma deficiência na ingestão de proteínas com calorias adequadas
+
+A instalação é rápida - não dá tempo para a criança se adaptar
+
+Faixa etária típica é entre 2 - 3º ano de vida
+
+Clinicamente é uma criança com:
+
+Edema (deficiência de proteínas, permeabilidade endotelial e produção de radicais livres)
+Apatia e Anorexia
+Déficit de peso e estatura
+Hepatomegalia (fígado fica gorduroso, pois não consegue sintetizar proteínas - uma vez que não tem aminoácidos)
+Alterações de cabelo: fino, fraco, quebradiço e com sinal da bandeira - mechas de cores diferentes
+Alterações na pele: manchas hipo e hipercrômicas
+Subcutâneo relativamente preservada
+Apresenta pior prognóstico que a forma de Marasmo, uma vez que a criança é "não adaptada" - a instalação é muito abrupta
+
+2) .MARASMO: (vide imagem 2) .vem do grego "marasmós" e significa extremo emagrecimento. É decorrente de uma ingesta global deficiente em energia. Assim:
+
+Há uma deficiência na ingesta de energia e micro/macronutrientes de maneira igual
+
+A instalação é lenta - dá tempo para o organismo da criança ir se adaptando
+
+Faixa etária típica são crianças com menos de 1 ano de idade
+
+Clinicamente é uma criança com:
+
+Irritabilidade
+Déficit de peso e estatura
+Apetite variável (geralmente tem fome)
+Atrofia e hipotonia muscular
+Ausência de tecido subcutâneo/gorduroso
+Perda da bola gordurosa de Bichat - apresenta fácies senil ou simiesca
+Não há edema
+3) .MARASMO - KWASHIORKOR: Há características das duas apresentações em graus variáveis, p.ex pode estar totalmente consumida com edema importante nos membros inferiores. É a forma com pior prognóstico de todas.
+
+CLASSIFICAÇÃO DE GÓMEZ
+É uma classificação que leva em consideração o peso da criança para a idade. Para isso, deve-se utilizar a curva de crescimento de peso para a idade (Para os gráficos de crescimento: vide pediatria -> puericultura -> curvas de crescimento). Aí a partir da idade avalia-se qual é o peso ideal, ou seja, aquele que esteja no percentil 50 (Z 0). Esse valor corresponde a 100%, e o da criança sendo avaliada é o valor X. Com uma regra de 3 básica, avalia-se o quanto o peso da criança avaliada corresponde ao total de 100%. Aí classifica-se:
+
+> 90%: Eutrofia (normal)
+
+76 - 90%: Desnutrição de 1º grau ou leve
+
+61 - 74%: Desnutrição de 2º grau ou moderada
+
+≤ 60%: Desnutrição de 3º grau ou grave*
+
+Se tiver Edema, sempre será classificada como Grave, independente do valor percentual encontrado
+As desvantagens dessa classificação incluem: necessidade de saber a idade da criança, não informa sobre a duração da doença. Isso acaba levando a um elevado número de falsos positivos.
+
+CLASSIFICAÇÃO DE WATERLOW
+A classificação de Waterlow leva em consideração o fato de que crianças desnutridas de forma aguda apresentam perda de peso, ao passo que desnutrições crônicas levam à redução do ganho estatural. Assim, essa classificação leva em consideração duas avaliações: estatura para a idade e peso para a estatura. São dois pontos para a adequação, devendo-se utilizar as curvas de crescimento: (Para os gráficos de crescimento: vide pediatria -> puericultura -> curvas de crescimento):
+
+1º Deve-se utilizar a curva de crescimento de estatura para a idade. Aí a partir da idade avalia-se qual é a estatura ideal, ou seja, aquela que esteja no percentil 50 (Z 0). Esse valor corresponde a 100%, e o da criança sendo avaliada é o valor X. Com uma regra de 3 básica, avalia-se o quanto a estatura da criança avaliada corresponde ao total de 100%.
+
+2º Deve-se utilizar a curva de crescimento de peso para a estatura. Aí a partir do peso avalia-se qual é o estatura ideal, ou seja, aquele que esteja no percentil 50 (Z 0). Esse valor corresponde a 100%, e o da criança sendo avaliada é o valor X. Com uma regra de 3 básica, avalia-se o quanto o peso da criança avaliada corresponde ao total de 100%.
+
+A partir dessas duas avaliações interpreta-se na seguinte tabela:
+
+Waterlow
+Clique na imagem para ampliar
+
+⚠️ Um desnutrido grave é considerado caso tenta P/E < 70%
+
+CLASSIFICAÇÃO DA OMS / MS / SBP
+A classificação da Organização Mundial de Saúde (OMS) é a mais utilizada na prática, e estimulada pelo Ministério da Saúde do Brasil (MS) e pela Sociedade Brasileira de Pediatria (SBP). Para isso, utiliza-se 4 curvas de crescimento (Para os gráficos de crescimento: vide pediatria -> puericultura -> curvas de crescimento):
+
+Peso/Idade
+Desenv
+Clique na imagem para ampliar
+
+Estatura/Idade
+Desenv
+Clique na imagem para ampliar
+
+Peso/Estatura
+Desenv
+Clique na imagem para ampliar
+
+IMC /Idade
+Desenv
+Clique na imagem para ampliar
+
+⚠️ A avaliação conjunta desses dados é sensível e específica para o diagnóstico de desnutrição - peso (fator agudo); estatura (fator crônico).
+
+⚠️ Desnutrição grave dado por um dos Critérios: 1) .Relação Peso/Idade (P/E): < -3 (magreza acentuada); 2) .Circunferência Braquial: Menor que 115 mm em crianças de 6 a 59 meses; 3) .Presença de Edema
+
+Para um melhor entendimento de como analisar esses dados: vide pediatria -> puericultura -> índices antropométricos na infância
+
+DIAGNÓSTICO
+O diagnóstico é feito a partir de um exame físico completo concomitante à análise da idade, peso e estatura da criança. Esses dados devem ser analisados a partir das classificações acima descritas (Goméz, Warterlow, OMS/MS) para se chegar ao diagnóstico do comprometimento desnutricional da criança. Rotineiramente se dá preferência à classificação da OMS/MS.
+
+Diante do diagnóstico, imperativo colher alguns exames laboratoriais:
+
+Hemograma completo
+Glicemia
+Eletrólitos (Sódio, Potássio, Magnésio, Fosfato)
+Função renal (Ureia, Creatinina)
+Gasometria arterial
+Parcial de urina + Urocultura
+Parasitológico de fezes
+Além disso, outros exames também podem ser solicitados dependendo da gravidade dos achados:
+
+Perfil de ferro
+Dosagem de vitamina (p.ex ácido fólico, vitamina B12)
+Dosagem de proteínas séricas, incluindo albumina
+Culturas (hemocultura, coprocultura, nasofaríngea etc)
+Perfil lipídico
+Raio-X de tórax (acometimento cardiopulmonar)
+Eletrocardiograma (acometimento cardíaco)
+Sorologia para HIV (na suspeita)
+Esfregaço sanguíneo (zona endêmica de malária)
+EXAMES COMPLEMENTARES
+Os exames complementares são necessários para avaliar presença de complicações e exclusão de diagnósticos diferenciais, incluem:
+
+Laboratórios gerais: Hemograma completo, Creatinina, Ureia; Sódio, Potássio, Magnésio, Fósforo; Glicemia; PCR; TGO, TGP; Gasometria
+
+Laboratórios específicos: perfil de ferro; vitamina B12; Ácido fólico; Vitamina A; Vitamina D; dosagem de proteínas séricas; Perfil lipídico
+
+Sorologia para HIV
+
+Esfregaço sanguíneo
+
+Urina tipo1, Urocultura
+
+Ultrassonografia Abdominal
+
+Eletrocardiograma
+
+Raio-X de tórax
+
+Parasitológico de fezes
+
+Análise liquórica (complicações no Sistema Nervoso Central)
+
+EXAMES LABORATORIAIS ESPERADOS
+As principais alterações laboratoriais encontradas nos desnutridos incluem:
+
+Hemograma completo: anemia, linfopenia
+
+Glicemia: hipoglicemia
+
+Sódio: hiponatremia (dilucional)
+
+Potássio: Hipocalemia
+
+Magnésio: Hipomagnesemia
+
+Fosfato: Hipofosfatemia
+
+PCR: podem estar normais ou elevados
+
+Lipidograma: redução de triglicerídeos e colesterol
+
+Gasometria arterial: acidose ou alcalose metabólica
+
+COMPLICAÇÕES
+Insuficiência Cardíaca
+
+Insuficiência renal
+
+Insuficiência respiratória
+
+Acidose/alcalose metabólica
+
+Distúrbios hidroeletrolíticos
+
+Anemia grave
+
+Infecções secundárias
+
+Noma: ulceração necrosante crônica da gengiva/bochecha - relacionada a infecção polimicrobiana - Prevottela intermedia; Fusobacterium necrophorum; etc
+
+Baixa estatura na adultidade
+
+VACINAS
+
+AO NASCER
+(1)
+
+BCG: dose única (idealmente ainda na maternidade)
+(2)
+
+Vacina Hepatite B (HB): 1ª dose
+OBS importante (SBP): Recém-nascidos de mães HBsAg positivas devem receber vacina + imunoglobulina (HBIG) nas primeiras 12 horas de vida, em membros diferentes.
+(3)
+
+Anticorpo monoclonal (nirsevimabe): dose única
+Aplicar ao nascer, independentemente da sazonalidade.
+Dose:
+50 mg para crianças com <5 kg
+100 mg para crianças com ≥5 kg
+Pode ser administrado junto com outras vacinas do calendário.
+Na segunda sazonalidade, apenas para bebês até 2 anos com condições de risco, em dose de 200 mg
+2 MESES
+(1)
+
+Vacina Pentavalente (PNI): 1ª dose
+
+Pentavalente = DTP + Hib + Hepatite B (HB)
+DTP: Difteria + Tétano + Pertussis
+Hib: Haemophilus influenzae tipo b
++ VIP (Poliomielite inativada): 1 ª dose
+
+OU
+
+Vacina Hexavalente (rede privada):
+
+Hexavalente = DTPa + Hib + Hepatite B (HB) + VIP (Poliomielite inativada) – 1ª dose de VIP
+DTPa: Difteria + Tétano + Pertussis acelular
+OU
+
+DTPa 1ª dose + Hib 1ª dose + Hepatite B 2ª dose + VIP 1ª dose
+
+OBS da SBP:
+
+Prematuros ≤2 kg devem completar 4 doses de Hepatite B (0–2–4–6 meses).
+Vacinas acelulares podem requerer 4ª dose de Hib aos 15 meses .
+(2)
+
+Pneumocócica conjugada 13, 15 ou 20 valente (SBP – preferência): 1ª dose
+OU
+Pneumocócica 10 valente (PNI): 1ª dose
+OBS da SBP (2025/26):
+
+SBP recomenda PCV13/15/20 no esquema 3+1 (2–4–6 + 12–15 meses) .
+PNI usa PCV10 no 2+1 (2–4–12 meses) .
+(3)
+
+VORH – Vacina Oral de Rotavírus Humano (RV1 – monovalente): 1ª dose
+OU
+VRH5 – Rotavírus pentavalente (RV5): 1ª dose
+OBS da SBP (2025/26):
+
+RV1 = 2 doses (2 e 4 meses)
+RV5 = 3 doses (2–4–6 meses)
+3 MESES
+(1)
+
+Vacina meningocócica ACWY (preferência SBP): 1ª dose
+OU
+Vacina meningocócica C (conjugada – PNI): 1ª dose
+OBS importante:
+
+Esquemas variam conforme apresentação da vacina.
+PNI usa MenC aos 3 e 5 meses, com reforço ACWY aos 12 meses e 11–14 anos.
+(2)
+
+Meningocócica B recombinante: 1ª dose
+SBP: 2 doses com intervalo de 2 meses + reforço no 2º ano de vida .
+Trumenba® (10–25 anos): 2 doses (0 e 6 meses).
+4 MESES
+(1)
+
+Vacina Pentavalente (PNI): 2ª dose
+DTP + Hib + Hepatite B (HB)
+OU
+
+Vacina Hexavalente (privado): 2ª dose
+DTPa + Hib + Hepatite B + VIP (2ª dose de VIP)
+OU
+
+DTPa 2ª dose + Hib 2ª dose + VIP 2ª dose
+(2)
+
+Pneumocócica 13/15/20 valente (SBP): 2ª dose
+OU
+Pneumocócica 10 valente (PNI): 2ª dose
+(3)
+
+VORH (RV1 – monovalente): 2ª dose
+OU
+VRH5 (pentavalente): 2ª dose
+5 MESES
+(1)
+
+Vacina meningocócica ACWY - preferência conjugada (preferência): 2ª dose
+
+OU
+
+Vacina meningocócica C (conjugada - PNI): 2ª dose
+
+Obs: No PNI, o esquema é MenC aos 3 e 5 meses .
+
+(2)
+
+Meningocócica B recombinante: 2ª dose
+Obs SBP: Esquema para quem iniciou entre 2–12 meses = 2 doses (intervalo mínimo 2 meses) + reforço no 2º ano de vida .
+6 MESES
+(1)
+
+Vacina Pentavalente (PNI): 3ª dose
+Pentavalente = DTP + Hib + Hepatite B (HB)
+DTP: Difteria + Tétano + Pertussis
+Hib: Haemophilus influenzae tipo b
+OU
+
+Vacina Hexavalente (privado):
+Hexavalente = DTPa + Hib + Hepatite B (HB) + VIP – VIP 3ª dose
+DTPa: Difteria + Tétano + Pertussis acelular
+OU
+
+DTPa 3ª dose (preferência SBP) ou DTP 3ª dose + Hib 3ª dose + VIP 3ª dose + Hepatite B (3ª dose se esquema privado)
+Obs SBP:
+
+Esquema PNI com pentavalente completa 4 doses de Hepatite B (0–2–4–6).
+Esquema privado pode ser 3 doses (0–2–6 meses).
+(2)
+
+Pneumocócica conjugada 13, 15 ou 20 valente (SBP): 3ª dose
+Obs: PNI usa PCV10 em 2+1 (não há dose aos 6 meses), mas a SBP recomenda 3+1 usando PCV13/15/20.
+(3)
+
+VRH5 – Rotavírus pentavalente: 3ª dose
+Obs: 3ª dose somente para RV5 (penta).
+RV1 (monovalente) termina aos 4 meses .
+(4)
+
+Influenza (tri ou quadrivalente): 1ª dose
+Fazer 2ª dose após 1 mês se for primovacinação (crianças <9 anos sem doses anteriores).
+A PARTIR DOS 9 MESES
+Vacina febre amarela: 1ª dose
+Obs SBP: 2ª dose aos 4 anos .
+Em áreas com circulação do vírus, pode ser indicada entre 6–9 meses (dose não válida para rotina).
+12 MESES
+(1)
+
+Pneumocócica 13, 15 ou 20 valente (SBP): reforço
+OU
+Pneumocócica 10 valente (PNI): reforço
+(2)
+
+Meningocócica ACWY: reforço
+Obs SBP: Reforço entre 12–15 meses.
+(3)
+
+Meningocócica B recombinante: reforço
+(Reforço no 2º ano de vida conforme SBP)
+(4)
+
+Hepatite A: 1ª dose
+(5)
+
+Tetraviral (SCR + Varicela): 1ª dose
+Obs SBP: Pode usar SCR + Varicela separadas, mas SBP recomenda tetraviral a partir de 15 meses (por menor risco de febre).
+O PNI pode utilizar tetraviral aos 12 meses.
+15 MESES
+(1)
+
+DTPa (preferência SBP): 1º reforço + Hib: reforço
+DTPa: Difteria + Tétano + Pertussis acelular
+OU
+
+DTP (tríplice bacteriana): 1º reforço + Hib: reforço
+DTP: Difteria + Tétano + Pertussis (células inteiras)
+(2)
+
+VIP (pólio inativada): 1º reforço
+(3)
+
+Tetraviral: 2ª dose
+Se a criança fez SCR + Varicela separadas, também pode ser usada tetraviral como reforço.
+18 MESES
+Hepatite A: 2ª dose
+Obs: No PNI é dose única aos 15 meses, mas SBP recomenda 2 doses (12 e 18 meses).
+4 ANOS
+(1)
+
+DTPa (preferência SBP) ou DTP: 2º reforço
+DTPa: Difteria + Tétano + Pertussis acelular
+DTP: Difteria + Tétano + Pertussis (células inteiras)
+(2)
+
+VIP (Vacina Inativada Poliomielite): 2º reforço
+Obs SBP: Reforços obrigatoriamente com VIP.
+(3)
+
+Tetraviral ou SCR + Varicela:
+Aplicar 2ª dose da vacina de varicela (dependendo do esquema anterior).
+Se a criança já recebeu tetraviral aos 15 meses → não precisa nova dose.
+(4)
+
+Febre amarela: 2ª dose
+Para completar o esquema recomendado pela SBP.
+(5)
+
+Dengue:
+Crianças e adolescentes a partir dos 4 anos de idade
+Duas doses com intervalo de três meses entre elas (0-3 meses), independente de infecção prévia.
+4 A 6 ANOS
+(1)
+
+DTPa (preferência SBP) ou DTP: 2º reforço
+DTPa: Difteria + Tétano + Pertussis acelular
+DTP: Difteria + Tétano + Pertussis (células inteiras)
+(2)
+
+VIP (Vacina Inativada Poliomielite): 2º reforço
+Obs SBP: Reforços obrigatoriamente com VIP.
+Obs: SBP não recomenda VOP.
+(3)
+
+SCR / Varicela / SCRV (tetraviral):
+Caso o esquema anterior esteja incompleto, realizar as doses faltantes.
+Reforço só é necessário se a criança não tiver recebido as 2 doses anteriores.
+A PARTIR DE 9 ANOS
+(1)
+
+HPV (SBP):
+HPV4 ou HPV9
+Esquema: 2 doses (0 e 6 meses) para 9–19 anos.
+Maior que 20 anos = 3 doses (0–1/2–6).
+Obs SBP: Preferência para HPV9 pela maior cobertura.
+(2)
+
+Febre amarela:
+Para quem não recebeu aos 9 meses → aplicar 1ª dose agora .
+Obs: 2ª dose aos 4 anos.
+Adolescentes não vacinados = 1 dose (preferencialmente 2 doses).
+
+SUPLEMENTACAO DE VITAMINAS E FERRO NA INFANCIA
+
+
+FERRO
+A suplementação profilática de ferro varia conforme a situação de nascimento do lactente e tipo de alimentação:
+
+A) A termo, Adequado para a idade gestacional (AIG): em Aleitamento materno exclusivo até 6 meses de idade:
+
+Iniciar preferencialmente aos 6 meses: oferecer diariamente ferro elementar na dose de 10 - 12,5 mg/dia por três meses seguidos, na sequência, fazer uma pausa de três meses. Ao término do terceiro mês de pausa, iniciar um novo ciclo de três meses de suplementação diária. No total, a criança de 6 a 24 meses de idade deve completar dois ciclos de suplementação - isso quer dizer que mesmo que a criança inicie o ciclo após os 6 meses de idade, ainda dá tempo de fazer os dois ciclos desde que se conclua até os 24 meses de vida.
+Cérebro
+Clique na imagem para ampliar
+
+A recomendação acima é do Ministério da Saúde e da Sociedade Brasileira de Pediatria. Antigamente, a recomendação da Sociedade Brasileira de Pediatria orientava a suplementação profilática com dose de 1 mg/Kg/dia de ferro elementar dos 6 meses de idade até os 2 anos caso não tenha fator de risco, no entanto em março de 2026 atualizou-se para a mesma dose do MS (10 - 12,5 mg/dia para bebê a termo e com peso adequado). Caso tenha fator de risco, deve-se iniciar a partir dos 3 meses. Os fatores de risco são os seguintes:
+
+presença de sangramento na gestação, não suplementação de ferro na gestação, gestações múltiplas e muito próximas, dieta materna pobre em ferro, clampeamento do cordão antes de 1 minuto, atraso na introdução alimentar (> 6 meses), consumo de leite de vaca antes de 1 ano, baixo consumo de alimentos ricos em ferro, velocidade de crescimento > p90, trauma, uso de AINE, infecção por H.pylori, verminoses, discrasias sanguíneas, malária, doença celíaca, doença inflamatória intestinal, gastrite atrófica, uso de antiácidos, ibp ou bloqueador h2
+B) Prematuros (< 37 semanas) ou com baixo peso ao nascimento (< 2.500 g): independente de aleitamento materno ou uso de fórmulas infantis (recomendações iguais para o Ministério da Saúde e Sociedade Brasileira de Pediatria):
+
+1) .Prematuros com qualquer peso ou abaixo de 2500 g :
+
+A partir dos 30 dias de vida até 1 ano de idade: 2 mg/kg/dia de ferro elementar
+Entre 1 - 2 anos de idade: 1 mg/kg/dia de ferro elementar
+2) .Muito baixo peso (< 1500g): :
+
+A partir dos 30 dias de vida até 1 ano de idade: 3mg/kg/dia de ferro elementar
+Entre 1 - 2 anos de idade: 1mg/kg/dia de ferro elementar
+3) .Extremo baixo peso (< 1000g): :
+
+A partir dos 30 dias de vida até 1 ano de idade: 4 mg/kg/dia de ferro elementar
+Entre 1 - 2 anos de idade: 1 mg/kg/dia de ferro elementar
+Mas como se prescreve? 🤔 Exemplo:
+
+Sulfato Ferroso (Apresentação: 125 mg/ml - equivalente a 1 mg de ferro elementar/gota) - prescrever duas vezes ao dia antes das refeições, de preferência com suco de laranja.
+Como tem 1 mg de ferro elementar/gota, a conta fica fácil. Por exemplo, criança AIG com 10 kg = 10 gotas/dia, dividido em 2 vezes no dia = 5 gotas duas vezes ao dia.
+VITAMINA A
+A ingestão de vitamina A em algumas regiões do Brasil é insuficiente a partir da alimentação suplementar - por questões de hábitos alimentares/alimentos disponíveis. Assim, faz-se necessária a sua suplementação em:
+
+Estados do Nordeste e na região do Vale do Jequitinhonha e Mucuri - em Minas gerais
+A suplementação deverá ser realizada até os 59 meses de idade, nos seguintes esquemas:
+
+Entre 6 - 11 meses de idade: 100.000 UI por dose, via oral a cada 6 meses
+
+Entre 12 - 59 meses de idade: 200.000 UI por dose, via oral a cada 6 meses
+
+Mas como se prescreve?🤔 Exemplo:
+
+Acetato de Retinol (Apresentação: gotas 150.000 UI/ml - ou seja, 150.000 UI a cada 20 gotas) (Nome comercial: Arovit®) - equivalência de gotas por dose a cada 6 meses via oral
+VITAMINA D
+Nos últimos anos, as recomendações para Suplementação de Vitamina D mudaram bastante. Atualmente, a recomendação é que seja feita de forma universal, ou seja, para todas as crianças a partir da primeira semana de vida:
+
+Vitamina D (Vitamina D - Colecalciferol) - 200 UI/gota - na dose de 400 UI/dia até 12 meses de idade; a partir dos 12 meses até os 18 anos de idade: 600 UI/dia.
+
+Crianças que possuem fatores de risco como dieta estritamente vegetariana, obesidade, hepatopatia, nefropatia crônica, má absorção intestinal, medicamentos (anticonvulsivantes, corticites, cetoconazol, rifampicina) orienta-se a dose de 1200-1800 UI/dia.
+Crianças em aleitamento materno exclusivo, já iniciando logo após o nascimento.
+Em prematuros, iniciar quando houver tolerância oral ou o peso for superior a 1.500 gramas
+Crianças em uso de fórmula láctea fortificada com vitamina D, porém com ingestão inferior a 1.000 ml/dia
+Crianças e adolescentes que não ingerem ao menos 600 UI/dia de vitamina D e/ou não se expõem ao sol de forma regular
+Crianças com risco de hipovitaminose, devem manter a suplementação até cessar o fator de risco.
+
+VITAMINA K
+Administrar apenas para o recém-nascido como forma de prevenção de sangramento resultantes de carência de fatores dependentes de vitamina K (II, VII, IX e X):
+
+Vitamina K (Apresentação: 10 mg/mL) (Nome comercial: Kanakion mm) - aplicar 1 mg IM dose única
+
+TABELAS DE CRESCIMENTO, PESO E IMC DA CRIANÇA
+https://www.nestlefamilynes.com.br/0-5/tabela-de-peso-infantil-por-idade
+
+https://www.hospitalinfantilsabara.org.br/portal-do-paciente-e-da-familia/curva-de-crescimento/
